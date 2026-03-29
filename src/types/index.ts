@@ -92,3 +92,71 @@ export interface AffiliatePayout {
   status: "pending" | "paid" | "rejected";
   created_at: string;
 }
+
+export interface Product {
+  id: string;
+  title: string;
+  description: string | null;
+  thumbnail_url: string | null;
+  file_url: string;
+  price: number;
+  seller_id: string;
+  commission_rate: number;
+  is_published: boolean;
+  category: "worksheet" | "ebook" | "template" | "resource";
+  created_at: string;
+  seller?: Profile;
+}
+
+export interface Purchase {
+  id: string;
+  user_id: string;
+  product_id: string;
+  amount_paid: number;
+  seller_amount: number;
+  platform_amount: number;
+  stripe_session_id: string | null;
+  purchased_at: string;
+  product?: Product;
+}
+
+export interface PaymentSlip {
+  id: string;
+  user_id: string;
+  item_type: "course" | "product";
+  item_id: string;
+  amount: number;
+  slip_url: string;
+  status: "pending" | "approved" | "rejected";
+  admin_note: string | null;
+  reviewed_by: string | null;
+  reviewed_at: string | null;
+  created_at: string;
+  user?: Profile;
+}
+
+export interface SiteSetting {
+  key: string;
+  value: string;
+  updated_by: string | null;
+  updated_at: string;
+}
+
+export interface ActivityLog {
+  id: string;
+  user_id: string;
+  action: string;
+  detail: string | null;
+  ip_address: string | null;
+  created_at: string;
+  user?: Profile;
+}
+
+export interface LessonAttachment {
+  id: string;
+  lesson_id: string;
+  title: string;
+  file_url: string;
+  file_type: string;
+  created_at: string;
+}

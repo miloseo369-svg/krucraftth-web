@@ -1,121 +1,78 @@
 import { createClient } from "@/lib/supabase/server";
 import Link from "next/link";
+import ProgressBar2 from "@/components/ui/ProgressBar2";
 
 export default async function DashboardPage() {
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { data: { user } } = await supabase.auth.getUser();
 
-  const { data: enrollments } = await supabase
-    .from("enrollments")
-    .select("*, course:courses(*)")
-    .eq("user_id", user!.id);
+  const [{ data: enrollments }, { data: progress }, { count: certCount }] = await Promise.all([
+    supabase.from("enrollments").select("*, course:courses(*, modules(id, lessons(id)))").eq("user_id", user!.id),
+    supabase.from("user_progress").select("lesson_id, is_completed").eq("user_id", user!.id),
+    supabase.from("certificates").select("*", { count: "exact", head: true }).eq("user_id", user!.id),
+  ]);
 
-  const { data: progress } = await supabase
-    .from("user_progress")
-    .select("*")
-    .eq("user_id", user!.id)
-    .eq("is_completed", true);
+  const completedIds = new Set(progress?.filter((p) => p.is_completed).map((p) => p.lesson_id) ?? []);
 
-  const completedCount = progress?.length ?? 0;
+  const courseProgress = enrollments?.map((e) => {
+    const total = e.course?.modules?.reduce((a: number, m: { lessons: unknown[] | null }) => a + (m.lessons?.length ?? 0), 0) ?? 0;
+    const ids = e.course?.modules?.flatMap((m: { lessons: { id: string }[] | null }) => m.lessons?.map((l) => l.id) ?? []) ?? [];
+    const done = ids.filter((id: string) => completedIds.has(id)).length;
+    return { ...e, total, done, percent: total > 0 ? Math.round((done / total) * 100) : 0 };
+  }) ?? [];
+
+  const stats = [
+    { label: "กำลังเรียน", value: enrollments?.length ?? 0, icon: "📚" },
+    { label: "บทเรียนที่จบ", value: completedIds.size, icon: "✅" },
+    { label: "ใบเซอร์", value: certCount ?? 0, icon: "🏆" },
+  ];
 
   return (
-    <div>
+    <div className="animate-fade-in">
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-gray-900">
-          สวัสดี, {user?.user_metadata?.full_name || "ผู้เรียน"} 👋
-        </h1>
-        <p className="text-gray-500 mt-1">
-          ติดตามความก้าวหน้าการเรียนของคุณ
-        </p>
+        <h1 className="text-2xl font-semibold text-white">สวัสดี, {user?.user_metadata?.full_name || "ผู้เรียน"} 👋</h1>
+        <p className="text-sm mt-1" style={{ color: "var(--text-secondary)" }}>{new Date().toLocaleDateString("th-TH", { weekday: "long", day: "numeric", month: "long", year: "numeric" })}</p>
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
-        <div className="bg-white rounded-xl border p-6">
-          <div className="text-sm text-gray-500">คอร์สที่ลงทะเบียน</div>
-          <div className="text-3xl font-bold text-gray-900 mt-1">
-            {enrollments?.length ?? 0}
+      <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 mb-10">
+        {stats.map((s) => (
+          <div key={s.label} className="rounded-xl border p-5" style={{ background: "var(--bg-card)", borderColor: "var(--border)" }}>
+            <p className="text-xs uppercase tracking-wider" style={{ color: "var(--text-muted)" }}>{s.label}</p>
+            <div className="flex items-center gap-2 mt-1.5">
+              <span className="text-2xl font-semibold text-white">{s.value}</span>
+              <span className="text-sm">{s.icon}</span>
+            </div>
           </div>
-        </div>
-        <div className="bg-white rounded-xl border p-6">
-          <div className="text-sm text-gray-500">บทเรียนที่เรียนจบ</div>
-          <div className="text-3xl font-bold text-gray-900 mt-1">
-            {completedCount}
-          </div>
-        </div>
-        <div className="bg-white rounded-xl border p-6">
-          <div className="text-sm text-gray-500">ใบประกาศนียบัตร</div>
-          <div className="text-3xl font-bold text-gray-900 mt-1">0</div>
-        </div>
+        ))}
       </div>
 
-      {/* Enrolled Courses */}
-      <h2 className="text-lg font-semibold text-gray-900 mb-4">
-        คอร์สของฉัน
-      </h2>
-
-      {!enrollments || enrollments.length === 0 ? (
-        <div className="bg-white rounded-xl border p-12 text-center">
-          <div className="text-gray-400 text-4xl mb-4">📚</div>
-          <h3 className="text-gray-700 font-medium mb-2">
-            คุณยังไม่ได้ลงทะเบียนเรียนคอร์สใด
-          </h3>
-          <p className="text-gray-500 text-sm mb-4">
-            เริ่มต้นเรียนรู้โดยเลือกคอร์สที่สนใจ
-          </p>
-          <Link
-            href="/courses"
-            className="inline-block px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition font-medium"
-          >
-            ดูคอร์สทั้งหมด
-          </Link>
+      {/* My Courses */}
+      <h2 className="text-lg font-medium text-white mb-4">คอร์สของฉัน</h2>
+      {courseProgress.length === 0 ? (
+        <div className="rounded-xl border p-16 text-center" style={{ background: "var(--bg-card)", borderColor: "var(--border)" }}>
+          <p className="text-sm text-white font-medium">ยังไม่ได้ลงทะเบียน</p>
+          <p className="text-xs mt-1" style={{ color: "var(--text-muted)" }}>เลือกคอร์สที่สนใจ</p>
+          <Link href="/courses" className="inline-block mt-4 px-5 py-2 rounded-lg bg-emerald-500 text-black text-sm font-medium hover:bg-emerald-400 active:scale-95 transition-all">ดูคอร์สทั้งหมด</Link>
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {enrollments.map((enrollment) => (
-            <Link
-              key={enrollment.id}
-              href={`/courses/${enrollment.course_id}`}
-              className="bg-white rounded-xl border hover:shadow-md transition overflow-hidden group"
-            >
-              <div className="aspect-video bg-gray-100 relative">
-                {enrollment.course?.thumbnail_url ? (
-                  <img
-                    src={enrollment.course.thumbnail_url}
-                    alt={enrollment.course.title}
-                    className="w-full h-full object-cover"
-                  />
+          {courseProgress.map((cp) => (
+            <Link key={cp.id} href={`/courses/${cp.course_id}`} className="group rounded-xl overflow-hidden border hover:-translate-y-0.5 transition-all duration-200" style={{ background: "var(--bg-card)", borderColor: "var(--border)" }}>
+              <div className="aspect-video relative overflow-hidden">
+                {cp.course?.thumbnail_url ? (
+                  <img src={cp.course.thumbnail_url} alt={cp.course.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                 ) : (
-                  <div className="w-full h-full flex items-center justify-center text-gray-300">
-                    <svg
-                      className="w-12 h-12"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={1.5}
-                        d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"
-                      />
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={1.5}
-                        d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                      />
-                    </svg>
-                  </div>
+                  <div className="w-full h-full bg-gradient-to-br from-emerald-900/40 to-emerald-700/20" />
+                )}
+                {cp.percent === 100 && (
+                  <div className="absolute top-3 right-3 px-2 py-0.5 rounded-full bg-emerald-500 text-black text-xs font-medium">เรียนจบ ✓</div>
                 )}
               </div>
               <div className="p-4">
-                <h3 className="font-semibold text-gray-900 group-hover:text-indigo-600 transition">
-                  {enrollment.course?.title}
-                </h3>
-                <p className="text-sm text-gray-500 mt-1">กำลังเรียน</p>
+                <h3 className="text-sm font-medium text-white group-hover:text-emerald-400 transition">{cp.course?.title}</h3>
+                <ProgressBar2 percent={cp.percent} className="mt-3" />
+                <p className="text-xs mt-2" style={{ color: "var(--text-muted)" }}>{cp.done}/{cp.total} บทเรียน</p>
               </div>
             </Link>
           ))}

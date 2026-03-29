@@ -1,84 +1,85 @@
 import { createClient } from "@/lib/supabase/server";
 import Link from "next/link";
+import PublicNav from "@/components/PublicNav";
+import Badge2 from "@/components/ui/Badge2";
 
-export default async function CoursesPage() {
+export default async function CoursesPage({ searchParams }: { searchParams: Promise<{ q?: string; filter?: string }> }) {
+  const { q, filter } = await searchParams;
   const supabase = await createClient();
 
-  const { data: courses } = await supabase
-    .from("courses")
-    .select("*, instructor:profiles(full_name)")
-    .eq("is_published", true)
-    .order("created_at", { ascending: false });
+  let query = supabase.from("courses").select("*, instructor:profiles(full_name)").eq("is_published", true).order("created_at", { ascending: false });
+  if (q?.trim()) query = query.or(`title.ilike.%${q.trim()}%,description.ilike.%${q.trim()}%`);
+  if (filter === "free") query = query.eq("price", 0);
+  else if (filter === "paid") query = query.gt("price", 0);
+
+  const { data: courses } = await query;
+
+  const filters = [
+    { value: "", label: "ทั้งหมด" },
+    { value: "free", label: "ฟรี" },
+    { value: "paid", label: "มีค่าใช้จ่าย" },
+  ];
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-white border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <h1 className="text-3xl font-bold text-gray-900">คอร์สเรียนทั้งหมด</h1>
-          <p className="text-gray-500 mt-2">
-            เลือกคอร์สที่คุณสนใจและเริ่มเรียนได้ทันที
-          </p>
+    <div className="min-h-screen" style={{ background: "var(--bg-primary)" }}>
+      <PublicNav active="courses" />
+
+      {/* Sticky Filter Bar */}
+      <div className="sticky top-14 z-40 backdrop-blur-xl border-b" style={{ background: "rgba(10,10,10,0.8)", borderColor: "var(--border)" }}>
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3">
+          <form className="flex items-center gap-3">
+            <div className="relative flex-1">
+              <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-muted)]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+              <input type="text" name="q" defaultValue={q ?? ""} placeholder="ค้นหาคอร์ส..." className="w-full pl-10 pr-4 py-2 rounded-xl text-sm outline-none transition" style={{ background: "var(--bg-card)", border: "1px solid var(--border)", color: "var(--text-primary)" }} />
+            </div>
+            <div className="flex gap-1.5 overflow-x-auto scrollbar-hide">
+              {filters.map((f) => (
+                <button key={f.value} type="submit" name="filter" value={f.value} className={`px-3.5 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-all active:scale-95 ${filter === f.value || (!filter && f.value === "") ? "bg-emerald-500 text-black" : "text-[var(--text-secondary)] hover:bg-[var(--bg-hover)]"}`} style={filter !== f.value && (filter || f.value !== "") ? { border: "1px solid var(--border)" } : {}}>
+                  {f.label}
+                </button>
+              ))}
+            </div>
+          </form>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8">
+        {q && (
+          <p className="text-sm mb-6" style={{ color: "var(--text-secondary)" }}>
+            ผลการค้นหา &quot;{q}&quot; — {courses?.length ?? 0} คอร์ส
+            <Link href="/courses" className="text-emerald-400 ml-2 hover:underline">ล้าง</Link>
+          </p>
+        )}
+
         {!courses || courses.length === 0 ? (
-          <div className="text-center py-20">
-            <div className="text-gray-300 text-5xl mb-4">📚</div>
-            <h3 className="text-gray-600 font-medium text-lg">
-              ยังไม่มีคอร์สเรียนในขณะนี้
-            </h3>
-            <p className="text-gray-400 mt-1">โปรดกลับมาใหม่ในภายหลัง</p>
+          <div className="text-center py-24">
+            <div className="w-14 h-14 rounded-xl mx-auto mb-4 flex items-center justify-center" style={{ background: "var(--bg-card)" }}>
+              <svg className="w-6 h-6" style={{ color: "var(--text-muted)" }} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" /></svg>
+            </div>
+            <p className="text-sm text-white font-medium">{q ? "ไม่พบคอร์สที่ค้นหา" : "ยังไม่มีคอร์ส"}</p>
+            <p className="text-xs mt-1" style={{ color: "var(--text-muted)" }}>{q ? "ลองค้นหาด้วยคำอื่น" : "กลับมาใหม่เร็วๆ นี้"}</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
             {courses.map((course) => (
-              <Link
-                key={course.id}
-                href={`/courses/${course.id}`}
-                className="bg-white rounded-xl border hover:shadow-lg transition overflow-hidden group"
-              >
-                <div className="aspect-video bg-gray-100 relative">
+              <Link key={course.id} href={`/courses/${course.id}`} className="group rounded-xl overflow-hidden border hover:-translate-y-0.5 hover:shadow-[0_0_30px_var(--accent-glow)] transition-all duration-200" style={{ background: "var(--bg-card)", borderColor: "var(--border)" }}>
+                <div className="aspect-video relative overflow-hidden">
                   {course.thumbnail_url ? (
-                    <img
-                      src={course.thumbnail_url}
-                      alt={course.title}
-                      className="w-full h-full object-cover"
-                    />
+                    <img src={course.thumbnail_url} alt={course.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center text-gray-300">
-                      <svg className="w-16 h-16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                      </svg>
-                    </div>
+                    <div className="w-full h-full bg-gradient-to-br from-emerald-900/40 to-emerald-700/20" />
                   )}
-                  {course.price === 0 && (
-                    <span className="absolute top-3 right-3 bg-green-500 text-white text-xs font-semibold px-2.5 py-1 rounded-full">
-                      ฟรี
-                    </span>
-                  )}
-                </div>
-                <div className="p-5">
-                  <h3 className="font-semibold text-gray-900 group-hover:text-indigo-600 transition text-lg">
-                    {course.title}
-                  </h3>
-                  {course.description && (
-                    <p className="text-gray-500 text-sm mt-2 line-clamp-2">
-                      {course.description}
-                    </p>
-                  )}
-                  <div className="flex items-center justify-between mt-4">
-                    <span className="text-sm text-gray-400">
-                      โดย {course.instructor?.full_name || "ผู้สอน"}
-                    </span>
-                    <span className="font-bold text-indigo-600">
-                      {course.price === 0
-                        ? "ฟรี"
-                        : `฿${course.price.toLocaleString()}`}
-                    </span>
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+                  <div className="absolute top-3 right-3">
+                    <Badge2 variant={course.price === 0 ? "free" : "paid"}>
+                      {course.price === 0 ? "ฟรี" : `฿${course.price.toLocaleString()}`}
+                    </Badge2>
                   </div>
+                </div>
+                <div className="p-4">
+                  <h3 className="font-medium text-white text-sm group-hover:text-emerald-400 transition">{course.title}</h3>
+                  {course.description && <p className="text-xs mt-1.5 line-clamp-2" style={{ color: "var(--text-secondary)" }}>{course.description}</p>}
+                  <p className="text-xs mt-3" style={{ color: "var(--text-muted)" }}>{course.instructor?.full_name || "KruCraft"}</p>
                 </div>
               </Link>
             ))}

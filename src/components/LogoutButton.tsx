@@ -16,7 +16,7 @@ export default function LogoutButton() {
   return (
     <button
       onClick={handleLogout}
-      className="text-sm text-gray-500 hover:text-gray-700 transition font-medium"
+      className="text-sm text-gray-500 hover:text-white transition font-medium"
     >
       ออกจากระบบ
     </button>

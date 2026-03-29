@@ -20,7 +20,7 @@ export default function VideoPlayer({ lessonId, videoPath }: VideoPlayerProps) {
         const res = await fetch("/api/video-token", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ videoPath }),
+          body: JSON.stringify({ videoPath, lessonId }),
         });
 
         if (!res.ok) {
@@ -43,11 +43,11 @@ export default function VideoPlayer({ lessonId, videoPath }: VideoPlayerProps) {
     const video = videoRef.current;
     if (!video) return;
 
-    const interval = setInterval(async () => {
+    const saveProgress = async () => {
       const {
         data: { user },
       } = await supabase.auth.getUser();
-      if (!user) return;
+      if (!user || !video.duration) return;
 
       const currentTime = Math.floor(video.currentTime);
       const duration = Math.floor(video.duration);
@@ -64,9 +64,17 @@ export default function VideoPlayer({ lessonId, videoPath }: VideoPlayerProps) {
         },
         { onConflict: "user_id,lesson_id" }
       );
-    }, 30000); // every 30 seconds
+    };
 
-    return () => clearInterval(interval);
+    const interval = setInterval(saveProgress, 30000);
+    video.addEventListener("pause", saveProgress);
+    video.addEventListener("ended", saveProgress);
+
+    return () => {
+      clearInterval(interval);
+      video.removeEventListener("pause", saveProgress);
+      video.removeEventListener("ended", saveProgress);
+    };
   }, [lessonId, supabase]);
 
   if (error) {

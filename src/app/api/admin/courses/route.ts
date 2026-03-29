@@ -1,0 +1,48 @@
+import { NextRequest, NextResponse } from "next/server";
+import { createClient } from "@/lib/supabase/server";
+
+/** POST /api/admin/courses — สร้างคอร์สใหม่ */
+export async function POST(request: NextRequest) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user)
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("role")
+    .eq("id", user.id)
+    .maybeSingle();
+  if (!profile || profile.role !== "admin")
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+
+  const body = await request.json();
+  const { title, description, price, instructor_id, is_published, thumbnail_url } = body;
+
+  if (!title?.trim()) {
+    return NextResponse.json(
+      { error: "กรุณาระบุชื่อคอร์ส" },
+      { status: 400 }
+    );
+  }
+
+  const { data: course, error } = await supabase
+    .from("courses")
+    .insert({
+      title: title.trim(),
+      description: description?.trim() || null,
+      price: price ?? 0,
+      instructor_id: instructor_id || null,
+      is_published: is_published ?? false,
+      thumbnail_url: thumbnail_url || null,
+    })
+    .select()
+    .single();
+
+  if (error)
+    return NextResponse.json({ error: error.message }, { status: 500 });
+
+  return NextResponse.json({ course }, { status: 201 });
+}

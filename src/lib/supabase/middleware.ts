@@ -36,7 +36,9 @@ export async function updateSession(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // Protected routes - redirect to login if not authenticated
-  const protectedPaths = ["/dashboard", "/courses", "/admin"];
+  // /courses และ /courses/[id] เป็น public (browsing)
+  // /courses/[id]/lessons/[id] ป้องกันที่ระดับ page แทน (รองรับ free preview)
+  const protectedPaths = ["/dashboard", "/admin", "/instructor", "/orders"];
   const isProtected = protectedPaths.some((path) =>
     pathname.startsWith(path)
   );

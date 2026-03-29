@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Sarabun, Geist } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
+import { ToastProvider } from "@/components/Toast";
+import { ConfirmProvider } from "@/components/ConfirmModal";
 
 const geist = Geist({subsets:['latin'],variable:'--font-sans'});
 
@@ -23,8 +25,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="th" className={cn("h-full", "antialiased", sarabun.variable, "font-sans", geist.variable)}>
-      <body className="font-[family-name:var(--font-sarabun)] min-h-full flex flex-col bg-gray-50 text-gray-900">
-        {children}
+      <body className="font-[family-name:var(--font-sarabun)] min-h-full flex flex-col bg-gray-950 text-white">
+        <ToastProvider>
+          <ConfirmProvider>
+            {children}
+          </ConfirmProvider>
+        </ToastProvider>
       </body>
     </html>
   );

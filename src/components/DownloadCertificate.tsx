@@ -47,7 +47,7 @@ export default function DownloadCertificate({
       a.click();
       URL.revokeObjectURL(url);
     } catch (err) {
-      console.error("Error generating PDF:", err);
+      if (process.env.NODE_ENV === "development") console.error("Error generating PDF:", err);
     } finally {
       setLoading(false);
     }

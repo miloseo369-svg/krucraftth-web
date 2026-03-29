@@ -107,6 +107,32 @@ create table affiliate_payouts (
   created_at timestamptz default now()
 );
 
+-- discount_codes (โค้ดส่วนลด)
+create table discount_codes (
+  id uuid primary key default gen_random_uuid(),
+  code text unique not null,
+  discount_type text not null default 'percent', -- percent | fixed
+  discount_value numeric not null default 10,
+  min_price numeric default 0,
+  max_uses integer default null, -- null = unlimited
+  used_count integer default 0,
+  applies_to text default 'all', -- all | course | product
+  is_active boolean default true,
+  expires_at timestamptz default null,
+  created_at timestamptz default now()
+);
+
+-- discount_code_usages (บันทึกการใช้โค้ด)
+create table discount_code_usages (
+  id uuid primary key default gen_random_uuid(),
+  code_id uuid references discount_codes(id) on delete cascade,
+  user_id uuid references profiles(id),
+  item_type text, -- course | product
+  item_id uuid,
+  discount_amount numeric,
+  created_at timestamptz default now()
+);
+
 -- video_token_logs
 create table video_token_logs (
   id uuid primary key default gen_random_uuid(),

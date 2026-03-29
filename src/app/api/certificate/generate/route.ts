@@ -12,7 +12,16 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const { courseId } = await request.json();
+  const body = await request.json();
+  const courseId = body?.courseId;
+
+  if (!courseId) {
+    return NextResponse.json({ error: "courseId is required" }, { status: 400 });
+  }
+
+  // ตรวจว่าคอร์สมีอยู่จริง
+  const { data: course } = await supabase.from("courses").select("id").eq("id", courseId).maybeSingle();
+  if (!course) return NextResponse.json({ error: "ไม่พบคอร์ส" }, { status: 404 });
 
   // Check if user has completed the course exam
   const { data: examResult } = await supabase
@@ -21,7 +30,7 @@ export async function POST(request: NextRequest) {
     .eq("user_id", user.id)
     .eq("course_id", courseId)
     .gte("score", 70)
-    .single();
+    .maybeSingle();
 
   if (!examResult) {
     return NextResponse.json(
@@ -36,7 +45,7 @@ export async function POST(request: NextRequest) {
     .select("*")
     .eq("user_id", user.id)
     .eq("course_id", courseId)
-    .single();
+    .maybeSingle();
 
   if (existingCert) {
     return NextResponse.json({ certificate: existingCert });
