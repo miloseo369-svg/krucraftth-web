@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/components/Toast";
+import Logo from "@/components/Logo";
 
 interface Affiliate {
   id: string;
@@ -73,10 +74,10 @@ export default function AffiliateDashboard({ affiliate, payouts, stats, userName
   return (
     <div className="min-h-screen" style={{ background: "var(--bg-primary)" }}>
       {/* Nav */}
-      <nav className="sticky top-0 z-50 backdrop-blur-xl border-b" style={{ background: "rgba(10,10,10,0.8)", borderColor: "var(--border)" }}>
+      <nav className="sticky top-0 z-50 backdrop-blur-xl border-b" style={{ background: "var(--glass-bg)", borderColor: "var(--glass-border)", backdropFilter: "blur(var(--glass-blur))" }}>
         <div className="max-w-6xl mx-auto px-4 sm:px-6 flex items-center justify-between h-14">
           <div className="flex items-center gap-6">
-            <Link href="/" className="text-lg font-semibold text-emerald-400">KruCraft</Link>
+            <Logo />
             <span className="text-sm font-medium text-white">Affiliate Program</span>
           </div>
           <Link href="/dashboard" className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium border border-emerald-500/20 text-emerald-400 hover:text-emerald-300 hover:border-emerald-500/40 transition-all">
@@ -115,7 +116,7 @@ export default function AffiliateDashboard({ affiliate, payouts, stats, userName
             </div>
 
             <button onClick={handleJoin} disabled={loading} className="px-8 py-3 rounded-lg bg-emerald-500 text-black font-medium hover:bg-emerald-400 active:scale-95 transition-all shadow-lg shadow-emerald-500/20 disabled:opacity-50">
-              {loading ? "กำลังสมัคร..." : "สมัครเป็น Affiliate"}
+              {loading ? "กำลังสมัคร..." : "สมัครเป็น Affiliate →"}
             </button>
           </div>
         ) : (
@@ -168,8 +169,10 @@ export default function AffiliateDashboard({ affiliate, payouts, stats, userName
                 <h2 className="text-sm font-medium text-white">ประวัติค่าคอมมิชชัน</h2>
               </div>
               {payouts.length === 0 ? (
-                <div className="px-5 py-12 text-center">
-                  <p className="text-sm" style={{ color: "var(--text-muted)" }}>ยังไม่มีรายการ — แชร์ลิงก์เพื่อเริ่มสร้างรายได้</p>
+                <div className="px-5 py-16 text-center">
+                  <svg className="w-16 h-16 mx-auto mb-4 text-zinc-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                  <p className="text-sm font-medium text-white">ยังไม่มีรายการ</p>
+                  <p className="text-xs mt-1" style={{ color: "var(--text-muted)" }}>แชร์ลิงก์แนะนำเพื่อเริ่มสร้างรายได้</p>
                 </div>
               ) : (
                 <div className="overflow-x-auto">

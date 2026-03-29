@@ -94,7 +94,11 @@ export default function AdminUserActions({ users, currentUserId }: { users: User
             </tr>
           ))}
           {users.length === 0 && (
-            <tr><td colSpan={4} className="px-6 py-16 text-center text-gray-600">ยังไม่มีผู้ใช้</td></tr>
+            <tr><td colSpan={4} className="px-6 py-20 text-center">
+              <svg className="w-16 h-16 mx-auto mb-4 text-zinc-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
+              <p className="text-sm font-medium text-white">ยังไม่มีผู้ใช้</p>
+              <p className="text-xs mt-1" style={{ color: "var(--text-muted)" }}>ผู้ใช้จะปรากฏเมื่อมีการสมัครสมาชิก</p>
+            </td></tr>
           )}
         </tbody>
       </table>

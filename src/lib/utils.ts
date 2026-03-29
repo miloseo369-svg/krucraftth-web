@@ -4,3 +4,18 @@ import { twMerge } from "tailwind-merge"
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
+
+export function toBuddhistDate(date: Date | string): string {
+  return new Intl.DateTimeFormat("th-TH", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  }).format(new Date(date));
+}
+
+export function maskEmail(email: string): string {
+  const [user, domain] = email.split("@");
+  return user.slice(0, 2) + "******" + "@" + domain;
+}

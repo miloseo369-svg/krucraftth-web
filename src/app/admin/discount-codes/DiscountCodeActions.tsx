@@ -214,10 +214,10 @@ export default function DiscountCodeActions({ initialCodes }: { initialCodes: Di
 
       {/* Codes Table */}
       {codes.length === 0 ? (
-        <div className="text-center py-16 rounded-xl border" style={{ background: "var(--bg-card)", borderColor: "var(--border)" }}>
-          <div className="text-4xl mb-3">🏷️</div>
-          <p className="text-sm text-white font-medium">ยังไม่มีโค้ดส่วนลด</p>
-          <p className="text-xs mt-1" style={{ color: "var(--text-muted)" }}>สร้างโค้ดแรกเพื่อเริ่มต้น</p>
+        <div className="text-center py-20 rounded-2xl border border-white/[0.07] bg-white/[0.03] backdrop-blur-md">
+          <svg className="w-16 h-16 mx-auto mb-4 text-zinc-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A2 2 0 013 12V7a4 4 0 014-4z" /></svg>
+          <p className="text-sm font-medium text-white">ยังไม่มีโค้ดส่วนลด</p>
+          <p className="text-xs mt-1" style={{ color: "var(--text-muted)" }}>กดปุ่ม &quot;สร้างโค้ดส่วนลด&quot; เพื่อเริ่มต้น</p>
         </div>
       ) : (
         <div className="rounded-xl border overflow-hidden" style={{ background: "var(--bg-card)", borderColor: "var(--border)" }}>

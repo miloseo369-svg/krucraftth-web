@@ -1,6 +1,4 @@
 import { requireAdmin } from "@/lib/supabase/admin";
-import Link from "next/link";
-import AdminNav from "@/components/AdminNav";
 import AdminCourseActions from "./AdminCourseActions";
 
 export default async function AdminCoursesPage() {
@@ -19,15 +17,9 @@ export default async function AdminCoursesPage() {
   ]);
 
   return (
-    <div className="min-h-screen bg-gray-950">
-      <AdminNav active="/admin/courses" />
-
-      <div className="max-w-7xl mx-auto px-6 py-8">
-        <AdminCourseActions
-          courses={courses ?? []}
-          instructors={instructors ?? []}
-        />
-      </div>
-    </div>
+    <AdminCourseActions
+      courses={courses ?? []}
+      instructors={instructors ?? []}
+    />
   );
 }

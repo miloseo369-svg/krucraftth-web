@@ -1,16 +1,20 @@
 import type { Metadata } from "next";
-import { Sarabun, Geist } from "next/font/google";
+import { Prompt, Kanit } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
 import { ToastProvider } from "@/components/Toast";
 import { ConfirmProvider } from "@/components/ConfirmModal";
 
-const geist = Geist({subsets:['latin'],variable:'--font-sans'});
-
-const sarabun = Sarabun({
-  variable: "--font-sarabun",
+const prompt = Prompt({
+  variable: "--font-prompt",
   subsets: ["thai", "latin"],
   weight: ["300", "400", "500", "600", "700"],
+});
+
+const kanit = Kanit({
+  variable: "--font-kanit",
+  subsets: ["thai", "latin"],
+  weight: ["400", "500", "600", "700"],
 });
 
 export const metadata: Metadata = {
@@ -24,8 +28,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="th" className={cn("h-full", "antialiased", sarabun.variable, "font-sans", geist.variable)}>
-      <body className="font-[family-name:var(--font-sarabun)] min-h-full flex flex-col bg-gray-950 text-white">
+    <html lang="th" className={cn("h-full antialiased", prompt.variable, kanit.variable)}>
+      <body className="font-[family-name:var(--font-prompt)] min-h-full flex flex-col text-white" style={{ background: "var(--bg-primary)", lineHeight: "1.6" }}>
         <ToastProvider>
           <ConfirmProvider>
             {children}

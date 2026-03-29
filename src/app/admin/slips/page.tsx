@@ -1,6 +1,4 @@
 import { requireAdmin } from "@/lib/supabase/admin";
-import Link from "next/link";
-import AdminNav from "@/components/AdminNav";
 import AdminSlipActions from "./AdminSlipActions";
 
 export default async function AdminSlipsPage() {
@@ -12,13 +10,12 @@ export default async function AdminSlipsPage() {
     .order("created_at", { ascending: false });
 
   return (
-    <div className="min-h-screen bg-gray-950">
-      <AdminNav active="/admin/slips" />
-
-      <div className="max-w-7xl mx-auto px-6 py-8">
-        <h1 className="text-2xl font-bold text-white mb-6">ตรวจสอบสลิป</h1>
-        <AdminSlipActions slips={slips ?? []} />
+    <>
+      <div className="mb-8">
+        <h1 className="text-2xl font-semibold text-white">ตรวจสอบสลิป</h1>
+        <p className="text-sm mt-1" style={{ color: "var(--text-secondary)" }}>ตรวจสอบและอนุมัติการชำระเงิน</p>
       </div>
-    </div>
+      <AdminSlipActions slips={slips ?? []} />
+    </>
   );
 }

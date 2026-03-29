@@ -1,6 +1,5 @@
 import { requireAdmin } from "@/lib/supabase/admin";
 import Link from "next/link";
-import AdminNav from "@/components/AdminNav";
 
 export default async function AdminPage() {
   const { supabase } = await requireAdmin();
@@ -34,9 +33,7 @@ export default async function AdminPage() {
   ];
 
   return (
-    <div className="min-h-screen" style={{ background: "var(--bg-primary)" }}>
-      <AdminNav active="/admin" />
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8">
+    <div>
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
@@ -52,20 +49,22 @@ export default async function AdminPage() {
         </div>
 
         {/* Stats Grid */}
-        <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 mb-8">
+        <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
           {stats.map((s) => (
-            <div key={s.label} className={`rounded-xl border p-5 ${s.border}`} style={{ background: "var(--bg-card)" }}>
-              <div className="flex items-center justify-between">
+            <div key={s.label} className={`relative overflow-hidden rounded-2xl border border-white/[0.07] bg-gradient-to-br from-white/[0.04] to-transparent backdrop-blur-md p-6 hover:border-white/[0.12] transition-all duration-300`}>
+              <div className="flex items-start justify-between">
                 <div>
-                  <p className="text-xs uppercase tracking-wider" style={{ color: "var(--text-muted)" }}>{s.label}</p>
-                  <p className="text-2xl font-semibold text-white mt-1">{s.value.toLocaleString()}</p>
+                  <p className="text-xs uppercase tracking-widest font-medium" style={{ color: "var(--text-muted)" }}>{s.label}</p>
+                  <p className="text-4xl font-bold text-white mt-2 tracking-tight">{s.value.toLocaleString()}</p>
                 </div>
-                <div className={`w-10 h-10 rounded-xl ${s.bg} flex items-center justify-center`}>
-                  <svg className={`w-5 h-5 ${s.color}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className={`w-12 h-12 rounded-xl ${s.bg} flex items-center justify-center shrink-0`}>
+                  <svg className={`w-6 h-6 ${s.color}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d={s.icon} />
                   </svg>
                 </div>
               </div>
+              {/* Subtle accent line at bottom */}
+              <div className={`absolute bottom-0 left-0 right-0 h-[2px] opacity-40 ${s.bg}`} />
             </div>
           ))}
         </div>
@@ -73,8 +72,8 @@ export default async function AdminPage() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           {/* Pending Slips */}
           <div className="lg:col-span-7">
-            <div className="rounded-xl border overflow-hidden" style={{ background: "var(--bg-card)", borderColor: "var(--border)" }}>
-              <div className="flex items-center justify-between px-5 py-4 border-b" style={{ borderColor: "var(--border)" }}>
+            <div className="rounded-2xl border border-white/[0.07] bg-white/[0.03] backdrop-blur-md overflow-hidden">
+              <div className="flex items-center justify-between px-5 py-4 border-b border-white/[0.06]">
                 <h2 className="text-sm font-medium text-white">สลิปรอตรวจล่าสุด</h2>
                 <Link href="/admin/slips" className="text-xs text-emerald-400 hover:text-emerald-300 transition">ดูทั้งหมด →</Link>
               </div>
@@ -92,8 +91,10 @@ export default async function AdminPage() {
                   ))}
                 </div>
               ) : (
-                <div className="px-5 py-10 text-center">
-                  <p className="text-sm" style={{ color: "var(--text-muted)" }}>ไม่มีสลิปรอตรวจ</p>
+                <div className="px-5 py-12 text-center">
+                  <svg className="w-12 h-12 mx-auto mb-3 text-zinc-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" /></svg>
+                  <p className="text-sm font-medium text-white">ไม่มีสลิปรอตรวจ</p>
+                  <p className="text-xs mt-1" style={{ color: "var(--text-muted)" }}>ทุกรายการได้รับการตรวจสอบแล้ว</p>
                 </div>
               )}
             </div>
@@ -101,8 +102,8 @@ export default async function AdminPage() {
 
           {/* Quick Actions */}
           <div className="lg:col-span-5">
-            <div className="rounded-xl border overflow-hidden" style={{ background: "var(--bg-card)", borderColor: "var(--border)" }}>
-              <div className="px-5 py-4 border-b" style={{ borderColor: "var(--border)" }}>
+            <div className="rounded-2xl border border-white/[0.07] bg-white/[0.03] backdrop-blur-md overflow-hidden">
+              <div className="px-5 py-4 border-b border-white/[0.06]">
                 <h2 className="text-sm font-medium text-white">เมนูจัดการ</h2>
               </div>
               <div className="p-2">
@@ -126,7 +127,6 @@ export default async function AdminPage() {
             </div>
           </div>
         </div>
-      </div>
     </div>
   );
 }

@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import Link from "next/link";
 import PublicNav from "@/components/PublicNav";
 import Badge2 from "@/components/ui/Badge2";
+import PremiumCourseCard from "@/components/PremiumCourseCard";
 
 export default async function CoursesPage({ searchParams }: { searchParams: Promise<{ q?: string; filter?: string }> }) {
   const { q, filter } = await searchParams;
@@ -25,7 +26,7 @@ export default async function CoursesPage({ searchParams }: { searchParams: Prom
       <PublicNav active="courses" />
 
       {/* Sticky Filter Bar */}
-      <div className="sticky top-14 z-40 backdrop-blur-xl border-b" style={{ background: "rgba(10,10,10,0.8)", borderColor: "var(--border)" }}>
+      <div className="sticky top-14 z-40 backdrop-blur-xl border-b" style={{ background: "var(--glass-bg)", borderColor: "var(--glass-border)", backdropFilter: "blur(var(--glass-blur))" }}>
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3">
           <form className="flex items-center gap-3">
             <div className="relative flex-1">
@@ -53,35 +54,22 @@ export default async function CoursesPage({ searchParams }: { searchParams: Prom
 
         {!courses || courses.length === 0 ? (
           <div className="text-center py-24">
-            <div className="w-14 h-14 rounded-xl mx-auto mb-4 flex items-center justify-center" style={{ background: "var(--bg-card)" }}>
-              <svg className="w-6 h-6" style={{ color: "var(--text-muted)" }} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" /></svg>
-            </div>
-            <p className="text-sm text-white font-medium">{q ? "ไม่พบคอร์สที่ค้นหา" : "ยังไม่มีคอร์ส"}</p>
+            <svg className="w-16 h-16 mx-auto mb-4 text-zinc-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d={q ? "M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" : "M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"} /></svg>
+            <p className="text-sm font-medium text-white">{q ? "ไม่พบคอร์สที่ค้นหา" : "ยังไม่มีคอร์ส"}</p>
             <p className="text-xs mt-1" style={{ color: "var(--text-muted)" }}>{q ? "ลองค้นหาด้วยคำอื่น" : "กลับมาใหม่เร็วๆ นี้"}</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {courses.map((course) => (
-              <Link key={course.id} href={`/courses/${course.id}`} className="group rounded-xl overflow-hidden border hover:-translate-y-0.5 hover:shadow-[0_0_30px_var(--accent-glow)] transition-all duration-200" style={{ background: "var(--bg-card)", borderColor: "var(--border)" }}>
-                <div className="aspect-video relative overflow-hidden">
-                  {course.thumbnail_url ? (
-                    <img src={course.thumbnail_url} alt={course.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                  ) : (
-                    <div className="w-full h-full bg-gradient-to-br from-emerald-900/40 to-emerald-700/20" />
-                  )}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-                  <div className="absolute top-3 right-3">
-                    <Badge2 variant={course.price === 0 ? "free" : "paid"}>
-                      {course.price === 0 ? "ฟรี" : `฿${course.price.toLocaleString()}`}
-                    </Badge2>
-                  </div>
-                </div>
-                <div className="p-4">
-                  <h3 className="font-medium text-white text-sm group-hover:text-emerald-400 transition">{course.title}</h3>
-                  {course.description && <p className="text-xs mt-1.5 line-clamp-2" style={{ color: "var(--text-secondary)" }}>{course.description}</p>}
-                  <p className="text-xs mt-3" style={{ color: "var(--text-muted)" }}>{course.instructor?.full_name || "KruCraft"}</p>
-                </div>
-              </Link>
+              <PremiumCourseCard
+                key={course.id}
+                title={course.title}
+                description={course.description}
+                price={course.price}
+                imageUrl={course.thumbnail_url}
+                href={`/courses/${course.id}`}
+                instructor={course.instructor?.full_name || "KruCraft"}
+              />
             ))}
           </div>
         )}

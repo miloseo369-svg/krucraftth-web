@@ -1,14 +1,15 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
+import Logo from "@/components/Logo";
 
 export default async function PublicNav({ active }: { active?: "courses" | "shop" }) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
   return (
-    <nav className="sticky top-0 z-50 backdrop-blur-xl border-b" style={{ background: "rgba(10,10,10,0.8)", borderColor: "var(--border)" }}>
+    <nav className="sticky top-0 z-50 backdrop-blur-xl border-b" style={{ background: "var(--glass-bg)", borderColor: "var(--glass-border)", backdropFilter: "blur(var(--glass-blur))" }}>
       <div className="max-w-6xl mx-auto px-4 sm:px-6 flex items-center justify-between h-14">
-        <Link href="/" className="text-lg font-semibold text-emerald-400">KruCraft</Link>
+        <Logo />
         <div className="flex items-center gap-5">
           <Link href="/courses" className={`text-sm transition ${active === "courses" ? "text-white font-medium" : "text-[var(--text-secondary)] hover:text-white"}`}>คอร์สเรียน</Link>
           <Link href="/shop" className={`text-sm transition ${active === "shop" ? "text-white font-medium" : "text-[var(--text-secondary)] hover:text-white"}`}>ร้านค้า</Link>

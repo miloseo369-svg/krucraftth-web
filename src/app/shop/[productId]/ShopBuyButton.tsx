@@ -49,9 +49,9 @@ export default function ShopBuyButton({ productId, productTitle, price }: { prod
       <button
         onClick={handleBuy}
         disabled={loading}
-        className="block w-full text-center py-3 bg-indigo-600 text-white font-semibold rounded-xl hover:bg-indigo-500 transition disabled:opacity-50"
+        className="block w-full text-center py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-400 text-white font-medium shadow-lg shadow-emerald-500/20 hover:brightness-110 active:scale-95 transition-all disabled:opacity-50"
       >
-        {loading ? "กำลังดำเนินการ..." : price > 0 ? `ซื้อ ฿${price.toLocaleString()}` : "รับฟรี"}
+        {loading ? "กำลังดำเนินการ..." : price > 0 ? `ซื้อ ฿${price.toLocaleString()} →` : "รับฟรี →"}
       </button>
 
       {showPayment && (

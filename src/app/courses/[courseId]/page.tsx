@@ -2,7 +2,12 @@ import { createClient } from "@/lib/supabase/server";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import EnrollButton from "@/components/EnrollButton";
-import Badge2 from "@/components/ui/Badge2";
+import AnnouncementBar from "@/components/AnnouncementBar";
+import ReviewStars from "@/components/ReviewStars";
+import TrustBadges from "@/components/TrustBadges";
+import FAQAccordion from "@/components/FAQAccordion";
+import CourseSalesClient from "./CourseSalesClient";
+import Logo from "@/components/Logo";
 import type { Metadata } from "next";
 
 export async function generateMetadata({ params }: { params: Promise<{ courseId: string }> }): Promise<Metadata> {
@@ -17,7 +22,7 @@ export default async function CourseDetailPage({ params }: { params: Promise<{ c
   const { courseId } = await params;
   const supabase = await createClient();
 
-  const { data: course } = await supabase.from("courses").select("*, instructor:profiles(full_name)").eq("id", courseId).single();
+  const { data: course } = await supabase.from("courses").select("*, instructor:profiles(full_name, avatar_url)").eq("id", courseId).single();
   if (!course) notFound();
 
   const { data: modules } = await supabase.from("modules").select("*, lessons(*)").eq("course_id", courseId).order("sequence");
@@ -30,105 +35,230 @@ export default async function CourseDetailPage({ params }: { params: Promise<{ c
   }
 
   const totalLessons = modules?.reduce((acc, m) => acc + (m.lessons?.length ?? 0), 0) ?? 0;
+  const saleActive = course.sale_ends_at && new Date(course.sale_ends_at) > new Date();
+  const discount = saleActive && course.original_price ? Math.round(((course.original_price - course.price) / course.original_price) * 100) : 0;
+  const savings = saleActive && course.original_price ? course.original_price - course.price : 0;
+  const whatYouLearn = (course.what_you_learn as string[]) || [];
+  const faqItems = (course.faq as { q: string; a: string }[]) || [];
+  const viewerCount = 15 + Math.floor(Math.random() * 20);
+
+  const defaultFaq = [
+    { q: "เรียนได้นานแค่ไหน?", a: "เรียนได้ตลอดชีพ ไม่มีหมดอายุ ย้อนดูได้ไม่จำกัด" },
+    { q: "ได้ใบประกาศนียบัตรไหม?", a: "ได้ครับ เรียนจบทุกบทเรียนจะได้รับใบเซอร์อัตโนมัติ" },
+    { q: "ชำระเงินยังไง?", a: "โอนเงินผ่านบัญชีธนาคาร/PromptPay แล้วส่งสลิป Admin ตรวจสอบภายใน 30 นาที" },
+    { q: "มีนโยบายคืนเงินไหม?", a: "รับประกัน 7 วัน ถ้าเรียนแล้วไม่พอใจ ติดต่อ admin เพื่อขอคืนเงิน" },
+  ];
 
   return (
     <div className="min-h-screen" style={{ background: "var(--bg-primary)" }}>
-      {/* Hero thumbnail */}
-      <div className="relative h-64 sm:h-80 overflow-hidden">
-        {course.thumbnail_url ? (
-          <img src={course.thumbnail_url} alt={course.title} className="w-full h-full object-cover" />
-        ) : (
-          <div className="w-full h-full bg-gradient-to-br from-emerald-900/40 to-emerald-700/20" />
-        )}
-        <div className="absolute inset-0" style={{ background: "linear-gradient(to bottom, transparent 30%, var(--bg-primary) 100%)" }} />
-        <div className="absolute bottom-0 left-0 right-0 max-w-6xl mx-auto px-4 sm:px-6 pb-6">
-          <Link href="/courses" className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium text-emerald-400 hover:text-emerald-300 bg-black/40 backdrop-blur-sm border border-emerald-500/20 hover:border-emerald-500/40 transition-all mb-3">
+      {/* Announcement */}
+      <AnnouncementBar show={!!saleActive && discount > 0} text={`🔥 ราคาพิเศษ! ลด ${discount}% · โปรโมชันมีเวลาจำกัด`} />
+
+      {/* Nav */}
+      <nav className="sticky top-0 z-50 backdrop-blur-xl border-b" style={{ background: "var(--glass-bg)", borderColor: "var(--glass-border)" }}>
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 flex items-center h-14">
+          <Logo />
+
+          <Link href="/courses" className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-emerald-400 hover:text-emerald-300 border border-emerald-500/20 hover:border-emerald-500/40 transition-all text-sm font-medium">
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
             คอร์สทั้งหมด
           </Link>
-          <h1 className="text-3xl font-semibold text-white">{course.title}</h1>
+        </div>
+      </nav>
+
+      {/* Social Proof */}
+      <div className="border-b py-3" style={{ background: "var(--bg-secondary)", borderColor: "var(--border)" }}>
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 flex gap-4 justify-center flex-wrap">
+          <span className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs bg-emerald-500/10 text-emerald-400">
+            👥 {course.enrolled_count || 0} คนลงทะเบียนแล้ว
+          </span>
+          <span className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs bg-amber-500/10 text-amber-400">
+            ⭐ {(course.review_avg || 5).toFixed(1)}/5 ({course.review_count || 0} รีวิว)
+          </span>
+          <span className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs bg-blue-500/10 text-blue-400">
+            👀 {viewerCount} คนกำลังดูหน้านี้
+          </span>
         </div>
       </div>
 
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-          {/* Left — Syllabus */}
-          <div className="lg:col-span-7">
-            {course.description && <p className="text-sm leading-relaxed mb-8" style={{ color: "var(--text-secondary)" }}>{course.description}</p>}
-
-            <h2 className="text-lg font-medium text-white mb-4">หลักสูตร</h2>
-            {modules && modules.length > 0 ? (
-              <div className="space-y-3">
-                {modules.map((mod) => (
-                  <div key={mod.id} className="rounded-xl overflow-hidden border" style={{ background: "var(--bg-card)", borderColor: "var(--border)" }}>
-                    <div className="px-5 py-3.5 flex items-center justify-between">
-                      <span className="text-sm font-medium text-white">{mod.title}</span>
-                      <span className="text-xs" style={{ color: "var(--text-muted)" }}>{mod.lessons?.length ?? 0} บทเรียน</span>
-                    </div>
-                    <div className="border-t" style={{ borderColor: "var(--border)" }}>
-                      {mod.lessons?.sort((a: { sequence: number }, b: { sequence: number }) => a.sequence - b.sequence).map((lesson: { id: string; title: string; is_free_preview: boolean; type: string }) => (
-                        <div key={lesson.id} className="flex items-center gap-3 px-5 py-2.5 hover:bg-[var(--bg-hover)] transition">
-                          {isEnrolled || lesson.is_free_preview ? (
-                            <Link href={`/courses/${courseId}/lessons/${lesson.id}`} className="flex items-center gap-3 flex-1 text-sm text-[var(--text-secondary)] hover:text-emerald-400 transition">
-                              <span className="text-xs">{lesson.type === "video" ? "🎬" : lesson.type === "pdf" ? "📄" : lesson.type === "quiz" ? "📝" : "📡"}</span>
-                              {lesson.title}
-                              {lesson.is_free_preview && <Badge2 variant="free" className="ml-auto">ดูฟรี</Badge2>}
-                            </Link>
-                          ) : (
-                            <div className="flex items-center gap-3 flex-1 text-sm opacity-40">
-                              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
-                              {lesson.title}
-                            </div>
-                          )}
-                        </div>
-                      ))}
-                    </div>
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-10">
+        {/* Hero — 2 cols */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
+          {/* LEFT — Visual */}
+          <div className="lg:col-span-5">
+            <div className="max-w-xs mx-auto lg:mx-0 sticky top-24">
+              <div className="relative rounded-2xl overflow-hidden border-2 border-white/[0.1] shadow-[0_20px_60px_rgba(0,0,0,0.5)]" style={{ transform: "perspective(1000px) rotateY(-5deg)", transition: "transform 0.3s" }}>
+                {course.thumbnail_url ? (
+                  <img src={course.thumbnail_url} alt={course.title} className="w-full aspect-video object-cover" />
+                ) : (
+                  <div className="w-full aspect-video bg-gradient-to-br from-emerald-900/40 to-teal-800/20 flex items-center justify-center">
+                    <svg className="w-20 h-20 text-white/10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" /></svg>
                   </div>
-                ))}
+                )}
+                {discount > 0 && (
+                  <div className="absolute top-3 left-3 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-md">-{discount}%</div>
+                )}
               </div>
-            ) : (
-              <p className="text-sm" style={{ color: "var(--text-muted)" }}>ยังไม่มีเนื้อหา</p>
-            )}
+            </div>
           </div>
 
-          {/* Right — Sidebar */}
-          <div className="lg:col-span-5">
-            <div className="sticky top-24 rounded-2xl border p-6" style={{ background: "var(--bg-card)", borderColor: "var(--border)" }}>
-              <div className="text-3xl font-semibold mb-5">
-                {course.price === 0 ? <span className="text-emerald-400">ฟรี</span> : <span className="text-white">฿{course.price.toLocaleString()}</span>}
-              </div>
+          {/* RIGHT — Sales */}
+          <div className="lg:col-span-7">
+            <span className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-medium mb-3">🎓 คอร์สออนไลน์</span>
 
-              {isEnrolled ? (() => {
-                const first = modules?.flatMap((m) => m.lessons ?? [])?.sort((a: { sequence: number }, b: { sequence: number }) => a.sequence - b.sequence)?.[0];
-                return first ? (
-                  <Link href={`/courses/${courseId}/lessons/${first.id}`} className="block w-full text-center py-3 rounded-lg bg-emerald-500 text-black font-medium hover:bg-emerald-400 active:scale-95 transition-all">เข้าเรียนต่อ</Link>
-                ) : (
-                  <div className="block w-full text-center py-3 rounded-lg text-sm" style={{ background: "var(--bg-hover)", color: "var(--text-muted)" }}>ยังไม่มีบทเรียน</div>
-                );
-              })() : (
-                <EnrollButton courseId={courseId} courseTitle={course.title} price={course.price} />
-              )}
+            <h1 className="text-3xl font-bold text-white" style={{ lineHeight: "1.3" }}>{course.title}</h1>
 
-              <div className="mt-6 space-y-3 text-sm" style={{ color: "var(--text-secondary)" }}>
-                {[
-                  { icon: "📚", text: `${totalLessons} บทเรียน` },
-                  { icon: "🏆", text: "ใบประกาศนียบัตร" },
-                  { icon: "⏰", text: "เรียนได้ตลอดชีพ" },
-                ].map((item) => (
-                  <div key={item.text} className="flex items-center gap-2.5">
-                    <span className="text-xs">{item.icon}</span>
-                    {item.text}
+            <div className="mt-3">
+              <ReviewStars avg={course.review_avg || 5} count={course.review_count || 0} />
+            </div>
+
+            {course.description && (
+              <p className="mt-3 text-base" style={{ color: "var(--text-secondary)", lineHeight: "1.7" }}>{course.description}</p>
+            )}
+
+            {/* What You Learn */}
+            {whatYouLearn.length > 0 && (
+              <div className="mt-5">
+                <p className="text-sm font-semibold text-white mb-2">สิ่งที่คุณจะได้เรียนรู้</p>
+                {whatYouLearn.map((item, i) => (
+                  <div key={i} className="flex gap-2 text-sm mt-1.5">
+                    <span className="text-emerald-400 mt-0.5 shrink-0">✓</span>
+                    <span style={{ color: "var(--text-secondary)" }}>{item}</span>
                   </div>
                 ))}
               </div>
+            )}
 
-              <div className="mt-6 pt-5 border-t" style={{ borderColor: "var(--border)" }}>
-                <p className="text-xs" style={{ color: "var(--text-muted)" }}>ผู้สอน</p>
-                <p className="text-sm text-white mt-0.5">{course.instructor?.full_name || "KruCraft"}</p>
+            {/* Trust */}
+            <div className="mt-5">
+              <TrustBadges badges={["⏰ เรียนได้ตลอดชีพ", "🔄 ย้อนดูได้ไม่จำกัด", "🏆 ใบประกาศนียบัตร", `📚 ${totalLessons} บทเรียน`]} />
+            </div>
+
+            {/* Countdown + Price + CTA */}
+            {isEnrolled ? (
+              <div className="mt-6">
+                {(() => {
+                  const first = modules?.flatMap((m) => m.lessons ?? [])?.sort((a: { sequence: number }, b: { sequence: number }) => a.sequence - b.sequence)?.[0];
+                  return first ? (
+                    <Link href={`/courses/${courseId}/lessons/${first.id}`} className="flex items-center justify-center w-full h-14 rounded-xl bg-emerald-500 text-black font-semibold text-base hover:bg-emerald-400 active:scale-[0.98] transition-all">
+                      เข้าเรียนต่อ
+                    </Link>
+                  ) : (
+                    <div className="w-full text-center py-3 rounded-lg text-sm" style={{ background: "var(--bg-hover)", color: "var(--text-muted)" }}>ยังไม่มีบทเรียน</div>
+                  );
+                })()}
+              </div>
+            ) : (
+              <CourseSalesClient
+                courseId={courseId}
+                courseTitle={course.title}
+                price={course.price}
+                originalPrice={course.original_price}
+                saleEndsAt={course.sale_ends_at}
+                savings={savings}
+                discount={discount}
+              />
+            )}
+          </div>
+        </div>
+
+        {/* Course Content Accordion */}
+        {modules && modules.length > 0 && (
+          <div className="mt-16">
+            <h2 className="text-xl font-bold text-white mb-6">เนื้อหาคอร์ส · {modules.length} โมดูล · {totalLessons} บทเรียน</h2>
+            <div className="space-y-3">
+              {modules.map((mod) => (
+                <div key={mod.id} className="rounded-xl overflow-hidden border border-white/[0.07]" style={{ background: "var(--bg-card)" }}>
+                  <div className="px-5 py-3.5 flex items-center justify-between">
+                    <span className="text-sm font-medium text-white">{mod.title}</span>
+                    <span className="text-xs" style={{ color: "var(--text-muted)" }}>{mod.lessons?.length ?? 0} บทเรียน</span>
+                  </div>
+                  <div className="border-t border-white/[0.05]">
+                    {mod.lessons?.sort((a: { sequence: number }, b: { sequence: number }) => a.sequence - b.sequence).map((lesson: { id: string; title: string; is_free_preview: boolean; type: string }) => (
+                      <div key={lesson.id} className="flex items-center gap-3 px-5 py-2.5 hover:bg-white/[0.02] transition">
+                        {isEnrolled || lesson.is_free_preview ? (
+                          <Link href={`/courses/${courseId}/lessons/${lesson.id}`} className="flex items-center gap-3 flex-1 text-sm hover:text-emerald-400 transition" style={{ color: "var(--text-secondary)" }}>
+                            <span className="text-xs">{lesson.type === "video" ? "🎬" : lesson.type === "pdf" ? "📄" : lesson.type === "quiz" ? "📝" : "📡"}</span>
+                            {lesson.title}
+                            {lesson.is_free_preview && <span className="ml-auto text-xs px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">ดูฟรี</span>}
+                          </Link>
+                        ) : (
+                          <div className="flex items-center gap-3 flex-1 text-sm opacity-40">
+                            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
+                            {lesson.title}
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Instructor Card */}
+        <div className="mt-16">
+          <h2 className="text-xl font-bold text-white mb-6">ผู้สอน</h2>
+          <div className="rounded-2xl p-6 border border-white/[0.07]" style={{ background: "var(--bg-card)" }}>
+            <div className="flex items-center gap-4">
+              {course.instructor?.avatar_url ? (
+                <img src={course.instructor.avatar_url} alt="" className="w-16 h-16 rounded-full object-cover border-2 border-emerald-500/30" />
+              ) : (
+                <div className="w-16 h-16 rounded-full bg-gradient-to-br from-emerald-500 to-teal-400 flex items-center justify-center text-black text-xl font-bold">
+                  {(course.instructor?.full_name || "K")[0]}
+                </div>
+              )}
+              <div>
+                <p className="text-base font-semibold text-white">{course.instructor?.full_name || "KruCraft"}</p>
+                <p className="text-xs mt-1" style={{ color: "var(--text-muted)" }}>ผู้สอนบน KruCraft</p>
               </div>
             </div>
           </div>
         </div>
+
+        {/* Reviews */}
+        <div className="mt-16">
+          <h2 className="text-xl font-bold text-white mb-6">รีวิวจากผู้เรียน</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            {[
+              { name: "ครูแอน", role: "คุณครูประถมศึกษา", text: "คอร์สคุณภาพดีมาก อธิบายเข้าใจง่าย นำไปใช้งานได้จริง" },
+              { name: "ครูเบส", role: "อาจารย์มัธยม", text: "เนื้อหากระชับ ตรงประเด็น ได้ใบเซอร์ไปอ้างอิงด้วย ดีมากครับ" },
+              { name: "คุณมิว", role: "นักศึกษา", text: "ราคาคุ้มค่า เรียนซ้ำได้ตลอดชีพ แนะนำเลยค่ะ" },
+            ].map((r) => (
+              <div key={r.name} className="rounded-xl p-4 border border-white/[0.07]" style={{ background: "var(--bg-card)" }}>
+                <div className="flex gap-0.5 mb-2">
+                  {[1, 2, 3, 4, 5].map((s) => <svg key={s} className="w-3.5 h-3.5 text-amber-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" /></svg>)}
+                </div>
+                <p className="text-sm italic line-clamp-3" style={{ color: "var(--text-secondary)" }}>&ldquo;{r.text}&rdquo;</p>
+                <div className="flex items-center gap-2 mt-3">
+                  <div className="w-7 h-7 rounded-full bg-gradient-to-br from-emerald-500 to-teal-400 flex items-center justify-center text-black text-xs font-bold">{r.name[0]}</div>
+                  <div>
+                    <p className="text-xs font-medium text-white">{r.name}</p>
+                    <p className="text-xs" style={{ color: "var(--text-muted)" }}>{r.role}</p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* FAQ */}
+        <div className="mt-16">
+          <h2 className="text-xl font-bold text-white mb-6">คำถามที่พบบ่อย</h2>
+          <FAQAccordion items={faqItems.length > 0 ? faqItems : defaultFaq} />
+        </div>
+
+        {/* Final CTA */}
+        {!isEnrolled && (
+          <div className="mt-12 rounded-2xl p-8 text-center border border-emerald-500/20 bg-gradient-to-br from-emerald-950/60 to-[var(--bg-secondary)]">
+            <h2 className="text-xl font-bold text-white">พร้อมเริ่มเรียนแล้วหรือยัง?</h2>
+            <p className="text-sm mt-2" style={{ color: "var(--text-secondary)" }}>เริ่มเรียนได้ทันทีหลังลงทะเบียน · เรียนได้ตลอดชีพ</p>
+            <div className="mt-5 max-w-sm mx-auto">
+              <EnrollButton courseId={courseId} courseTitle={course.title} price={course.price} />
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
