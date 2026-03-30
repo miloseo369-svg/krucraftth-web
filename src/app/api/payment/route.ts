@@ -79,6 +79,19 @@ export async function POST(request: NextRequest) {
 
   const { data: urlData } = supabase.storage.from("slips").getPublicUrl(fileName);
 
+  // ดึง referral code จาก cookie + discount code จาก form
+  const refCode = request.cookies.get("kc_ref")?.value || null;
+  const discountCodeStr = formData.get("discount_code") as string | null;
+
+  // Record discount code usage
+  if (discountCodeStr) {
+    const { data: dc } = await supabase.from("discount_codes").select("id, used_count").eq("code", discountCodeStr).eq("is_active", true).maybeSingle();
+    if (dc) {
+      await supabase.from("discount_code_usages").insert({ code_id: dc.id, user_id: user.id, item_type: itemType, item_id: itemId, discount_amount: 0 });
+      await supabase.from("discount_codes").update({ used_count: (dc.used_count || 0) + 1 }).eq("id", dc.id);
+    }
+  }
+
   // บันทึกสลิป
   const { data: slip, error } = await supabase
     .from("payment_slips")
@@ -88,6 +101,7 @@ export async function POST(request: NextRequest) {
       item_id: itemId,
       amount: parsedAmount,
       slip_url: urlData.publicUrl,
+      referral_code: refCode,
     })
     .select()
     .single();

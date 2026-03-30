@@ -2,7 +2,6 @@ import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import PremiumCourseCard from "@/components/PremiumCourseCard";
-import ComingSoonBadge from "@/components/ComingSoonBadge";
 import Logo from "@/components/Logo";
 
 export default async function InstructorPage() {
@@ -52,11 +51,8 @@ export default async function InstructorPage() {
       <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8">
         {/* Header */}
         <div className="mb-8">
-          <div className="flex items-center gap-2">
-            <h1 className="text-2xl font-semibold text-white">แดชบอร์ดผู้สอน</h1>
-            <ComingSoonBadge label="ดูได้อย่างเดียว" size="sm" />
-          </div>
-          <p className="text-sm mt-1" style={{ color: "var(--text-secondary)" }}>จัดการคอร์สและติดตามผลการเรียนของนักเรียน · การแก้ไขต้องทำผ่าน Admin</p>
+          <h1 className="text-2xl font-semibold text-white">แดชบอร์ดผู้สอน</h1>
+          <p className="text-sm mt-1" style={{ color: "var(--text-secondary)" }}>จัดการคอร์สและติดตามผลการเรียนของนักเรียน</p>
         </div>
 
         {/* Stats */}
@@ -91,15 +87,19 @@ export default async function InstructorPage() {
             {courses.map((course) => {
               const lessonCount = course.modules?.reduce((a: number, m: { lessons: unknown[] | null }) => a + (m.lessons?.length ?? 0), 0) ?? 0;
               return (
-                <PremiumCourseCard
-                  key={course.id}
-                  title={course.title}
-                  description={`${lessonCount} บทเรียน`}
-                  price={course.price}
-                  imageUrl={course.thumbnail_url}
-                  href={`/courses/${course.id}`}
-                  statusBadge={{ label: course.is_published ? "เผยแพร่" : "ร่าง", variant: course.is_published ? "published" : "draft" }}
-                />
+                <div key={course.id} className="relative">
+                  <PremiumCourseCard
+                    title={course.title}
+                    description={`${lessonCount} บทเรียน`}
+                    price={course.price}
+                    imageUrl={course.thumbnail_url}
+                    href={`/courses/${course.id}`}
+                    statusBadge={{ label: course.is_published ? "เผยแพร่" : "ร่าง", variant: course.is_published ? "published" : "draft" }}
+                  />
+                  <Link href={`/admin/courses/${course.id}`} className="absolute bottom-4 right-4 z-10 px-3 py-1.5 rounded-lg bg-blue-500/10 text-blue-400 border border-blue-500/20 text-xs font-medium hover:bg-blue-500/20 transition">
+                    แก้ไขบทเรียน →
+                  </Link>
+                </div>
               );
             })}
           </div>

@@ -40,13 +40,11 @@ export async function GET(request: NextRequest) {
   }
 
   if (action === "approve") {
-    // อนุมัติสลิป
     await supabase
       .from("payment_slips")
       .update({ status: "approved", reviewed_at: new Date().toISOString() })
       .eq("id", slipId);
 
-    // ให้สิทธิ์ตาม item_type
     if (slip.item_type === "course") {
       await supabase.from("enrollments").upsert(
         { user_id: slip.user_id, course_id: slip.item_id },
@@ -60,7 +58,6 @@ export async function GET(request: NextRequest) {
         .single();
 
       if (product) {
-        // commission_rate = ส่วนแบ่งผู้ขาย (0.7 = ผู้ขายได้ 70%)
         const sellerAmount = slip.amount * product.commission_rate;
         const platformAmount = slip.amount - sellerAmount;
         await supabase.from("purchases").upsert(
@@ -75,6 +72,9 @@ export async function GET(request: NextRequest) {
         );
       }
     }
+
+    // Credit affiliate commission
+    await creditAffiliateCommission(supabase, slip);
   }
 
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL!;
@@ -152,8 +152,36 @@ export async function PATCH(request: NextRequest) {
     }
   }
 
+  // Credit affiliate commission
+  if (action === "approve") {
+    await creditAffiliateCommission(serviceClient, slip);
+  }
+
   const label = action === "approve" ? "อนุมัติ" : "ปฏิเสธ";
   await logActivity(user.id, `${label}_slip`, `${label}สลิป #${slipId} ของ user ${slip.user_id} (${slip.item_type}: ฿${slip.amount})`);
 
   return NextResponse.json({ success: true });
+}
+
+/** Credit affiliate commission when a payment is approved */
+async function creditAffiliateCommission(supabase: ReturnType<typeof createServiceClient>, slip: { referral_code?: string | null; amount: number; item_type: string; item_id: string; id: string }) {
+  if (!slip.referral_code) return;
+
+  const { data: affiliate } = await supabase
+    .from("affiliates")
+    .select("id, user_id, commission_rate")
+    .eq("referral_code", slip.referral_code)
+    .maybeSingle();
+
+  if (!affiliate) return;
+
+  const commission = Math.round(slip.amount * affiliate.commission_rate);
+  if (commission <= 0) return;
+
+  await supabase.from("affiliate_payouts").insert({
+    affiliate_id: affiliate.id,
+    order_id: slip.id,
+    commission_amount: commission,
+    status: "pending",
+  });
 }

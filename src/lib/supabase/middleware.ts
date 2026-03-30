@@ -33,7 +33,17 @@ export async function updateSession(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  const { pathname } = request.nextUrl;
+  const { pathname, searchParams } = request.nextUrl;
+
+  // Affiliate referral tracking — save ref code to cookie
+  const ref = searchParams.get("ref");
+  if (ref) {
+    supabaseResponse.cookies.set("kc_ref", ref, {
+      maxAge: 60 * 60 * 24 * 30, // 30 days
+      path: "/",
+      httpOnly: false,
+    });
+  }
 
   // Protected routes - redirect to login if not authenticated
   // /courses และ /courses/[id] เป็น public (browsing)

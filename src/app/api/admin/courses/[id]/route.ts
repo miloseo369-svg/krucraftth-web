@@ -1,17 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 
-async function checkAdmin(supabase: Awaited<ReturnType<typeof createClient>>) {
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+async function checkAdminOrInstructor(supabase: Awaited<ReturnType<typeof createClient>>, courseId?: string) {
+  const { data: { user } } = await supabase.auth.getUser();
   if (!user) return null;
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("role")
-    .eq("id", user.id)
-    .maybeSingle();
-  return profile?.role === "admin" ? user : null;
+  const { data: profile } = await supabase.from("profiles").select("role").eq("id", user.id).maybeSingle();
+  if (!profile) return null;
+  if (profile.role === "admin") return user;
+  if (profile.role === "instructor" && courseId) {
+    const { data: course } = await supabase.from("courses").select("instructor_id").eq("id", courseId).maybeSingle();
+    if (course?.instructor_id === user.id) return user;
+  }
+  return null;
 }
 
 /** PATCH /api/admin/courses/[id] — แก้ไขคอร์ส */
@@ -21,7 +21,7 @@ export async function PATCH(
 ) {
   const { id } = await params;
   const supabase = await createClient();
-  if (!(await checkAdmin(supabase)))
+  if (!(await checkAdminOrInstructor(supabase, id)))
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
   const body = await request.json();
@@ -56,7 +56,7 @@ export async function DELETE(
 ) {
   const { id } = await params;
   const supabase = await createClient();
-  if (!(await checkAdmin(supabase)))
+  if (!(await checkAdminOrInstructor(supabase, id)))
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
   const { error } = await supabase.from("courses").delete().eq("id", id);
