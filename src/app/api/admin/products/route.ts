@@ -51,7 +51,7 @@ export async function PATCH(request: NextRequest) {
   const { id } = body;
 
   // Whitelist fields ที่แก้ไขได้
-  const allowedFields = ["title", "description", "price", "file_url", "thumbnail_url", "category", "is_published"];
+  const allowedFields = ["title", "description", "price", "file_url", "thumbnail_url", "category", "is_published", "approval_status"];
   const updates: Record<string, unknown> = {};
   for (const key of allowedFields) {
     if (body[key] !== undefined) updates[key] = body[key];

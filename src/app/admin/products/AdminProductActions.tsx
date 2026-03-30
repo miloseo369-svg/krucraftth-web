@@ -14,6 +14,7 @@ interface Product {
   price: number;
   category: string;
   is_published: boolean;
+  approval_status: string;
   commission_rate: number;
   seller?: { full_name: string | null } | null;
 }
@@ -89,6 +90,20 @@ export default function AdminProductActions({ products }: { products: Product[] 
     const res = await fetch("/api/admin/products", { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: p.id, is_published: !p.is_published }) });
     if (res.ok) showToast(p.is_published ? "เปลี่ยนเป็นร่าง" : "เผยแพร่สินค้าแล้ว", "success");
     else showToast("เปลี่ยนสถานะไม่สำเร็จ", "error");
+    router.refresh();
+  };
+
+  const handleApprove = async (id: string) => {
+    const res = await fetch("/api/admin/products", { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id, approval_status: "approved", is_published: true }) });
+    if (res.ok) showToast("อนุมัติและเผยแพร่แล้ว", "success");
+    else showToast("อนุมัติไม่สำเร็จ", "error");
+    router.refresh();
+  };
+
+  const handleReject = async (id: string) => {
+    const res = await fetch("/api/admin/products", { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id, approval_status: "rejected" }) });
+    if (res.ok) showToast("ปฏิเสธสินค้าแล้ว", "success");
+    else showToast("เกิดข้อผิดพลาด", "error");
     router.refresh();
   };
 
@@ -179,9 +194,16 @@ export default function AdminProductActions({ products }: { products: Product[] 
                 <td className="px-6 py-4 text-sm" style={{ color: "var(--text-secondary)" }}>{p.price === 0 ? "ฟรี" : `฿${p.price.toLocaleString()}`}</td>
                 <td className="px-6 py-4 text-sm" style={{ color: "var(--text-secondary)" }}>{p.seller?.full_name || "-"}</td>
                 <td className="px-6 py-4">
-                  <button onClick={() => handleToggle(p)} className={`text-xs font-medium px-2.5 py-1 rounded-full transition ${p.is_published ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/20" : "bg-amber-500/20 text-amber-400 border border-amber-500/20"}`}>
-                    {p.is_published ? "เผยแพร่" : "ร่าง"}
-                  </button>
+                  {p.approval_status === "pending" ? (
+                    <div className="flex items-center gap-1">
+                      <button onClick={() => handleApprove(p.id)} className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 hover:bg-emerald-500/20 transition">อนุมัติ</button>
+                      <button onClick={() => handleReject(p.id)} className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-red-500/10 text-red-400 border border-red-500/20 hover:bg-red-500/20 transition">ปฏิเสธ</button>
+                    </div>
+                  ) : (
+                    <button onClick={() => handleToggle(p)} className={`text-xs font-medium px-2.5 py-1 rounded-full transition ${p.is_published ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/20" : "bg-amber-500/20 text-amber-400 border border-amber-500/20"}`}>
+                      {p.is_published ? "เผยแพร่" : "ร่าง"}
+                    </button>
+                  )}
                 </td>
                 <td className="px-6 py-4">
                   <div className="flex items-center gap-1">

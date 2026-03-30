@@ -145,16 +145,31 @@ export async function PATCH(request: NextRequest) {
 
       if (product) {
         const sellerAmt = slip.amount * product.commission_rate;
-        await serviceClient.from("purchases").upsert(
+        const platformAmt = slip.amount - sellerAmt;
+        const { data: purchase } = await serviceClient.from("purchases").upsert(
           {
             user_id: slip.user_id,
             product_id: slip.item_id,
             amount_paid: slip.amount,
             seller_amount: sellerAmt,
-            platform_amount: slip.amount - sellerAmt,
+            platform_amount: platformAmt,
           },
           { onConflict: "user_id,product_id" }
-        );
+        ).select().single();
+
+        // Record seller earnings
+        if (purchase && product.commission_rate < 1) {
+          const { data: prod } = await serviceClient.from("products").select("seller_id").eq("id", slip.item_id).single();
+          if (prod?.seller_id) {
+            await serviceClient.from("seller_earnings").insert({
+              seller_id: prod.seller_id,
+              purchase_id: purchase.id,
+              product_id: slip.item_id,
+              amount: sellerAmt,
+              status: "pending",
+            });
+          }
+        }
       }
     } else if (slip.item_type === "credits") {
       const creditsAmount = parseInt(slip.item_id, 10);
