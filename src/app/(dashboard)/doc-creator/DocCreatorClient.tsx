@@ -29,11 +29,7 @@ const TEMPLATES = [
     sections: ["ปกหน้า", "วัตถุประสงค์คอร์ส", "สิ่งที่จะได้เรียนรู้", "Module 1", "Module 2", "Module 3", "Module 4", "แบบฝึกหัด", "ภาคผนวก"] },
 ];
 
-const GEM_LINKS = {
-  cover: "https://gemini.google.com/app?q=สร้างภาพปกหนังสือ",
-  illustration: "https://gemini.google.com/app?q=สร้างรูปประกอบใบงาน",
-  lineArt: "https://gemini.google.com/app?q=สร้างรูปลายเส้นปะสำหรับใบงาน",
-};
+interface GemLink { id: string; title: string; url: string; }
 
 const AI_PROMPTS: Record<string, Record<string, string>> = {
   research: {
@@ -54,9 +50,9 @@ const AI_PROMPTS: Record<string, Record<string, string>> = {
   },
 };
 
-interface Props { userName: string; role: string; savedDocs: SavedDoc[]; }
+interface Props { userName: string; role: string; savedDocs: SavedDoc[]; gemLinks: GemLink[]; }
 
-export default function DocCreatorClient({ userName, savedDocs }: Props) {
+export default function DocCreatorClient({ userName, savedDocs, gemLinks }: Props) {
   const [step, setStep] = useState<"select" | "info" | "edit" | "preview">("select");
   const [templateCategory, setTemplateCategory] = useState("academic");
   const [template, setTemplate] = useState(TEMPLATES[0]);
@@ -267,10 +263,16 @@ export default function DocCreatorClient({ userName, savedDocs }: Props) {
               {coverImage && <img src={coverImage} alt="" className="w-14 h-20 rounded-lg object-cover border border-white/[0.07]" />}
               <div className="flex flex-col gap-1.5">
                 <input ref={coverRef} type="file" accept="image/*" onChange={handleCover} className="text-xs file:mr-2 file:py-1 file:px-2 file:rounded-lg file:border-0 file:text-xs file:font-medium file:bg-pink-500/10 file:text-pink-400" style={{ color: "var(--text-muted)" }} />
-                <a href={GEM_LINKS.cover} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-[10px] text-purple-400 hover:text-purple-300">
-                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25" /></svg>
-                  สร้างภาพปกด้วย Gemini AI →
-                </a>
+                {gemLinks.length > 0 && (
+                  <div className="flex flex-wrap gap-1.5">
+                    {gemLinks.slice(0, 3).map((g) => (
+                      <a key={g.id} href={g.url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-[10px] text-purple-400 hover:text-purple-300 px-2 py-0.5 rounded-full bg-purple-500/5 border border-purple-500/10 hover:bg-purple-500/10 transition">
+                        <svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12" /></svg>
+                        {g.title}
+                      </a>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -383,10 +385,21 @@ export default function DocCreatorClient({ userName, savedDocs }: Props) {
                 <p className="text-xs font-medium text-white">รูปประกอบ ({currentData.images.length})</p>
                 <div className="flex items-center gap-2">
                   <button onClick={() => imgRef.current?.click()} className="text-[10px] px-2 py-1 rounded-lg bg-white/5 border border-white/[0.07] hover:bg-white/10 transition" style={{ color: "var(--text-secondary)" }}>+ แนบรูป</button>
-                  <a href={template.id === "worksheet" ? GEM_LINKS.lineArt : GEM_LINKS.illustration} target="_blank" rel="noopener noreferrer" className="text-[10px] px-2 py-1 rounded-lg bg-purple-500/10 text-purple-400 border border-purple-500/20 hover:bg-purple-500/20 transition flex items-center gap-1">
-                    <svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12" /></svg>
-                    {template.id === "worksheet" ? "สร้างรูปลายเส้นด้วย AI" : "สร้างภาพด้วย AI"}
-                  </a>
+                  {gemLinks.length > 0 && (
+                    <div className="relative group/gem">
+                      <button className="text-[10px] px-2 py-1 rounded-lg bg-purple-500/10 text-purple-400 border border-purple-500/20 hover:bg-purple-500/20 transition flex items-center gap-1">
+                        <svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12" /></svg>
+                        สร้างภาพด้วย AI ▾
+                      </button>
+                      <div className="absolute right-0 top-full mt-1 w-48 rounded-xl border border-white/[0.1] py-1 shadow-xl z-20 hidden group-hover/gem:block" style={{ background: "var(--bg-card)" }}>
+                        {gemLinks.map((g) => (
+                          <a key={g.id} href={g.url} target="_blank" rel="noopener noreferrer" className="block px-3 py-2 text-[10px] text-white hover:bg-white/[0.04] transition">
+                            {g.title} →
+                          </a>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                   <input ref={imgRef} type="file" accept="image/*" onChange={(e) => addImage(currentSection, e)} className="hidden" />
                 </div>
               </div>
