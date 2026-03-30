@@ -14,19 +14,38 @@ export default function EbookMakerClient() {
   const [author, setAuthor] = useState("");
   const [pages, setPages] = useState<PageItem[]>([]);
   const [coverImage, setCoverImage] = useState<string | null>(null);
+  const [insertAfter, setInsertAfter] = useState<number | null>(null); // null = ท้ายสุด, 0 = ก่อนหน้า 1
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const insertInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
 
   function addImages(e: React.ChangeEvent<HTMLInputElement>) {
     const files = Array.from(e.target.files || []);
+    const newPages: PageItem[] = [];
+    let loaded = 0;
     files.forEach((file) => {
       const reader = new FileReader();
       reader.onload = () => {
-        setPages((prev) => [...prev, { id: crypto.randomUUID(), image: reader.result as string, caption: file.name.replace(/\.[^/.]+$/, "") }]);
+        newPages.push({ id: crypto.randomUUID(), image: reader.result as string, caption: file.name.replace(/\.[^/.]+$/, "") });
+        loaded++;
+        if (loaded === files.length) {
+          setPages((prev) => {
+            if (insertAfter === null || insertAfter >= prev.length) return [...prev, ...newPages];
+            const arr = [...prev];
+            arr.splice(insertAfter, 0, ...newPages);
+            return arr;
+          });
+          setInsertAfter(null);
+        }
       };
       reader.readAsDataURL(file);
     });
     e.target.value = "";
+  }
+
+  function triggerInsertAt(position: number) {
+    setInsertAfter(position);
+    setTimeout(() => insertInputRef.current?.click(), 50);
   }
 
   function setCover(e: React.ChangeEvent<HTMLInputElement>) {
@@ -166,51 +185,65 @@ export default function EbookMakerClient() {
       <div className="rounded-2xl border border-white/[0.07] p-5 mb-6" style={{ background: "var(--bg-card)" }}>
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-sm font-semibold text-white">หน้าเนื้อหา ({pages.length} หน้า)</h3>
-          <button onClick={() => fileInputRef.current?.click()} className="px-4 py-2 rounded-xl bg-emerald-500 text-black text-xs font-medium hover:bg-emerald-400 active:scale-95 transition-all">
-            + เพิ่มรูป
+          <button onClick={() => { setInsertAfter(null); fileInputRef.current?.click(); }} className="px-4 py-2 rounded-xl bg-emerald-500 text-black text-xs font-medium hover:bg-emerald-400 active:scale-95 transition-all">
+            + เพิ่มรูปท้ายสุด
           </button>
           <input ref={fileInputRef} type="file" accept="image/*" multiple onChange={addImages} className="hidden" />
+          <input ref={insertInputRef} type="file" accept="image/*" multiple onChange={addImages} className="hidden" />
         </div>
 
         {pages.length === 0 ? (
           <div className="text-center py-12 border-2 border-dashed border-white/[0.07] rounded-xl">
             <svg className="w-12 h-12 mx-auto mb-3 text-zinc-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
-            <p className="text-xs font-medium text-white">ลากรูปมาวาง หรือกดปุ่มด้านบน</p>
+            <p className="text-xs font-medium text-white">กดปุ่มด้านบนเพื่อเพิ่มรูป</p>
             <p className="text-[10px] mt-1" style={{ color: "var(--text-muted)" }}>รองรับ JPG, PNG, WebP · เลือกได้หลายรูป</p>
           </div>
         ) : (
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-            {pages.map((page, idx) => (
-              <div key={page.id} className="relative group rounded-xl overflow-hidden border border-white/[0.07]" style={{ background: "var(--bg-primary)" }}>
-                <div className="aspect-[3/4] relative">
-                  <img src={page.image} alt={page.caption} className="w-full h-full object-cover" />
-                  {/* Number */}
-                  <div className="absolute top-2 left-2 w-6 h-6 rounded-full bg-emerald-500 text-black text-[10px] font-bold flex items-center justify-center">{idx + 1}</div>
-                  {/* Actions */}
-                  <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition">
-                    {idx > 0 && (
-                      <button onClick={() => movePage(page.id, -1)} className="w-6 h-6 rounded-full bg-black/60 flex items-center justify-center text-white hover:bg-blue-500 transition">
-                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
+          <div className="space-y-2">
+            {/* Insert before page 1 */}
+            <button onClick={() => triggerInsertAt(0)} className="w-full py-1.5 rounded-lg border border-dashed border-white/[0.07] hover:border-emerald-500/40 hover:bg-emerald-500/5 transition-all text-[10px] font-medium" style={{ color: "var(--text-muted)" }}>
+              + แทรกรูปก่อนหน้า 1
+            </button>
+
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+              {pages.map((page, idx) => (
+                <div key={page.id} className="relative">
+                  <div className="group rounded-xl overflow-hidden border border-white/[0.07]" style={{ background: "var(--bg-primary)" }}>
+                    <div className="aspect-[3/4] relative">
+                      <img src={page.image} alt={page.caption} className="w-full h-full object-cover" />
+                      {/* Number */}
+                      <div className="absolute top-2 left-2 w-6 h-6 rounded-full bg-emerald-500 text-black text-[10px] font-bold flex items-center justify-center">{idx + 1}</div>
+                      {/* Actions */}
+                      <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition">
+                        {idx > 0 && (
+                          <button onClick={() => movePage(page.id, -1)} className="w-6 h-6 rounded-full bg-black/60 flex items-center justify-center text-white hover:bg-blue-500 transition" title="เลื่อนซ้าย">
+                            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
+                          </button>
+                        )}
+                        {idx < pages.length - 1 && (
+                          <button onClick={() => movePage(page.id, 1)} className="w-6 h-6 rounded-full bg-black/60 flex items-center justify-center text-white hover:bg-blue-500 transition" title="เลื่อนขวา">
+                            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+                          </button>
+                        )}
+                        <button onClick={() => removePage(page.id)} className="w-6 h-6 rounded-full bg-black/60 flex items-center justify-center text-white hover:bg-red-500 transition" title="ลบ">
+                          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+                        </button>
+                      </div>
+                      {/* Insert after button */}
+                      <button onClick={() => triggerInsertAt(idx + 1)} className="absolute bottom-2 left-1/2 -translate-x-1/2 px-2 py-0.5 rounded-full bg-blue-500/80 text-white text-[9px] font-medium opacity-0 group-hover:opacity-100 transition backdrop-blur-sm hover:bg-blue-500" title={`แทรกหลังหน้า ${idx + 1}`}>
+                        + แทรกหลังหน้านี้
                       </button>
-                    )}
-                    {idx < pages.length - 1 && (
-                      <button onClick={() => movePage(page.id, 1)} className="w-6 h-6 rounded-full bg-black/60 flex items-center justify-center text-white hover:bg-blue-500 transition">
-                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
-                      </button>
-                    )}
-                    <button onClick={() => removePage(page.id)} className="w-6 h-6 rounded-full bg-black/60 flex items-center justify-center text-white hover:bg-red-500 transition">
-                      <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
-                    </button>
+                    </div>
+                    <input
+                      value={page.caption}
+                      onChange={(e) => updateCaption(page.id, e.target.value)}
+                      placeholder="คำอธิบาย..."
+                      className="w-full px-2 py-1.5 text-[10px] outline-none bg-transparent text-white border-t border-white/[0.05]"
+                    />
                   </div>
                 </div>
-                <input
-                  value={page.caption}
-                  onChange={(e) => updateCaption(page.id, e.target.value)}
-                  placeholder="คำอธิบาย..."
-                  className="w-full px-2 py-1.5 text-[10px] outline-none bg-transparent text-white border-t border-white/[0.05]"
-                />
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         )}
       </div>
