@@ -21,6 +21,21 @@ export default async function ShopPage({ searchParams }: { searchParams: Promise
 
   const { count: totalProducts } = await supabase.from("products").select("*", { count: "exact", head: true }).eq("is_published", true);
 
+  // Gem links from DB
+  const { data: { user } } = await supabase.auth.getUser();
+  let userRole = "student";
+  if (user) {
+    const { data: profile } = await supabase.from("profiles").select("role").eq("id", user.id).maybeSingle();
+    userRole = profile?.role || "student";
+  }
+  const { data: gemLinks } = await supabase.from("gem_links").select("*").eq("is_active", true).order("sort_order");
+  const visibleGems = (gemLinks ?? []).filter((g) => {
+    if (g.access_level === "all") return true;
+    if (g.access_level === "instructor" && ["instructor", "admin"].includes(userRole)) return true;
+    if (g.access_level === "admin" && userRole === "admin") return true;
+    return false;
+  });
+
   return (
     <div className="min-h-screen" style={{ background: "var(--bg-primary)" }}>
       <PublicNav active="shop" />
@@ -144,52 +159,46 @@ export default async function ShopPage({ searchParams }: { searchParams: Promise
           </div>
         )}
 
-        {/* GEM — AI Tools Section */}
-        <div className="mt-16">
-          <div className="relative rounded-2xl overflow-hidden p-6 sm:p-8 mb-6 border border-purple-500/20" style={{ background: "linear-gradient(135deg, rgba(139,92,246,0.08), var(--bg-secondary), rgba(59,130,246,0.05))" }}>
-            <div className="absolute top-0 right-0 w-64 h-64 bg-purple-500/5 rounded-full blur-[80px]" />
-            <div className="relative flex items-center gap-4">
-              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 flex items-center justify-center shadow-xl shadow-purple-500/20 shrink-0">
-                <svg className="w-7 h-7 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.455 2.456L21.75 6l-1.036.259a3.375 3.375 0 00-2.455 2.456zM16.894 20.567L16.5 21.75l-.394-1.183a2.25 2.25 0 00-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 001.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 001.423 1.423l1.183.394-1.183.394a2.25 2.25 0 00-1.423 1.423z" /></svg>
-              </div>
-              <div>
-                <h2 className="text-xl sm:text-2xl font-bold text-white">AI Gem Tools</h2>
-                <p className="text-xs sm:text-sm" style={{ color: "var(--text-secondary)" }}>เครื่องมือ AI จาก Google Gemini สำหรับครูยุคใหม่</p>
+        {/* GEM — AI Tools (Dynamic from DB) */}
+        {visibleGems.length > 0 && (
+          <div className="mt-16">
+            <div className="relative rounded-2xl overflow-hidden p-6 sm:p-8 mb-6 border border-purple-500/20" style={{ background: "linear-gradient(135deg, rgba(139,92,246,0.08), var(--bg-secondary), rgba(59,130,246,0.05))" }}>
+              <div className="absolute top-0 right-0 w-64 h-64 bg-purple-500/5 rounded-full blur-[80px]" />
+              <div className="relative flex items-center gap-4">
+                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 flex items-center justify-center shadow-xl shadow-purple-500/20 shrink-0">
+                  <svg className="w-7 h-7 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z" /></svg>
+                </div>
+                <div>
+                  <h2 className="text-xl sm:text-2xl font-bold text-white">AI Gem Tools</h2>
+                  <p className="text-xs sm:text-sm" style={{ color: "var(--text-secondary)" }}>เครื่องมือ AI สำหรับครูยุคใหม่</p>
+                </div>
               </div>
             </div>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-            {[
-              { title: "สร้างแผนการสอน", desc: "ออกแบบแผนการสอนตามหลักสูตร", svg: "M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01", color: "from-blue-500 to-cyan-400", url: "https://gemini.google.com/app" },
-              { title: "สร้างใบงาน", desc: "ใบงานอัตโนมัติ พร้อมเฉลย", svg: "M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z", color: "from-purple-500 to-pink-400", url: "https://gemini.google.com/app" },
-              { title: "สรุปเนื้อหา", desc: "สรุปเป็น Mind Map / Infographic", svg: "M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z", color: "from-emerald-500 to-teal-400", url: "https://gemini.google.com/app" },
-              { title: "สร้างข้อสอบ", desc: "ปรนัย อัตนัย พร้อมเกณฑ์คะแนน", svg: "M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z", color: "from-amber-500 to-orange-400", url: "https://gemini.google.com/app" },
-              { title: "แปลเนื้อหา", desc: "แปลสื่อการสอนเป็นภาษาอื่น", svg: "M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129", color: "from-rose-500 to-red-400", url: "https://gemini.google.com/app" },
-              { title: "วิเคราะห์ผู้เรียน", desc: "วิเคราะห์จุดแข็ง/อ่อน แนะนำ", svg: "M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z", color: "from-indigo-500 to-blue-400", url: "https://gemini.google.com/app" },
-            ].map((gem) => (
-              <a key={gem.title} href={gem.url} target="_blank" rel="noopener noreferrer" className="group relative rounded-2xl overflow-hidden border border-white/[0.07] bg-white/[0.02] p-5 hover:-translate-y-1.5 hover:border-purple-500/30 hover:shadow-[0_8px_30px_rgba(139,92,246,0.12)] transition-all duration-500">
-                {/* Background glow */}
-                <div className={`absolute inset-0 bg-gradient-to-br ${gem.color} opacity-0 group-hover:opacity-[0.04] transition-opacity duration-500`} />
-                <div className="relative flex items-start gap-3">
-                  <div className={`w-11 h-11 rounded-xl bg-gradient-to-br ${gem.color} flex items-center justify-center shrink-0 shadow-lg group-hover:scale-110 transition-transform duration-500`}>
-                    <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d={gem.svg} /></svg>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+              {visibleGems.map((gem) => (
+                <a key={gem.id} href={gem.url} target="_blank" rel="noopener noreferrer" className="group relative rounded-2xl overflow-hidden border border-white/[0.07] bg-white/[0.02] p-5 hover:-translate-y-1.5 hover:border-purple-500/30 hover:shadow-[0_8px_30px_rgba(139,92,246,0.12)] transition-all duration-500">
+                  <div className={`absolute inset-0 bg-gradient-to-br ${gem.gradient} opacity-0 group-hover:opacity-[0.04] transition-opacity duration-500`} />
+                  <div className="relative flex items-start gap-3">
+                    <div className={`w-11 h-11 rounded-xl bg-gradient-to-br ${gem.gradient} flex items-center justify-center shrink-0 shadow-lg group-hover:scale-110 transition-transform duration-500`}>
+                      <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z" /></svg>
+                    </div>
+                    <div>
+                      <h3 className="text-sm font-semibold text-white group-hover:text-purple-300 transition-colors">{gem.title}</h3>
+                      {gem.description && <p className="text-xs mt-1" style={{ color: "var(--text-muted)", lineHeight: "1.5" }}>{gem.description}</p>}
+                    </div>
                   </div>
-                  <div>
-                    <h3 className="text-sm font-semibold text-white group-hover:text-purple-300 transition-colors">{gem.title}</h3>
-                    <p className="text-xs mt-1" style={{ color: "var(--text-muted)", lineHeight: "1.5" }}>{gem.desc}</p>
+                  <div className="relative mt-4 pt-3 border-t border-white/[0.05] flex items-center justify-between">
+                    <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-purple-500/10 text-purple-400 border border-purple-500/20">Powered by Gemini</span>
+                    <span className="text-xs font-medium text-purple-400 opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1">
+                      เปิด
+                      <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
+                    </span>
                   </div>
-                </div>
-                <div className="relative mt-4 pt-3 border-t border-white/[0.05] flex items-center justify-between">
-                  <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-purple-500/10 text-purple-400 border border-purple-500/20">Powered by Gemini</span>
-                  <span className="text-xs font-medium text-purple-400 opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1">
-                    เปิด
-                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
-                  </span>
-                </div>
-              </a>
-            ))}
+                </a>
+              ))}
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );
