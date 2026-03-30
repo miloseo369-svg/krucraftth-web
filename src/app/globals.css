@@ -91,6 +91,19 @@ p, span, li, td, th, label, a {
   --font-mono: var(--font-geist-mono);
 }
 
+/* === Mobile Improvements === */
+input, select, textarea {
+  font-size: 16px !important; /* ป้องกัน iOS auto-zoom */
+}
+
+.touch-manipulation {
+  touch-action: manipulation;
+}
+
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
 @layer base {
   * {
     @apply border-[var(--border)];
@@ -98,6 +111,7 @@ p, span, li, td, th, label, a {
   body {
     background: var(--bg-primary);
     color: var(--text-primary);
+    -webkit-tap-highlight-color: transparent;
   }
   html {
     @apply font-sans;
