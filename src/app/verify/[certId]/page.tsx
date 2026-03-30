@@ -16,7 +16,7 @@ export default async function VerifyCertPage({ params }: { params: Promise<{ cer
     .from("certificates")
     .select("*, user:profiles(full_name), course:courses(title)")
     .eq("cert_id", certId)
-    .single();
+    .maybeSingle();
 
   if (!certificate) notFound();
 

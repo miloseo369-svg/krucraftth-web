@@ -14,7 +14,7 @@ export default async function LessonPage({ params }: { params: Promise<{ courseI
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
-  const { data: lesson } = await supabase.from("lessons").select("*").eq("id", lessonId).eq("course_id", courseId).single();
+  const { data: lesson } = await supabase.from("lessons").select("*").eq("id", lessonId).eq("course_id", courseId).maybeSingle();
   if (!lesson) notFound();
 
   if (!lesson.is_free_preview) {

@@ -15,7 +15,7 @@ export default async function AdminCourseDetailPage({ params }: { params: Promis
   const { data: profile } = await supabase.from("profiles").select("role").eq("id", user.id).maybeSingle();
   if (!profile || !["admin", "instructor"].includes(profile.role)) redirect("/dashboard");
 
-  const { data: course } = await supabase.from("courses").select("*").eq("id", courseId).single();
+  const { data: course } = await supabase.from("courses").select("*").eq("id", courseId).maybeSingle();
   if (!course) notFound();
 
   // Instructor can only edit their own courses

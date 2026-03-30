@@ -13,7 +13,7 @@ const CATEGORY_LABELS: Record<string, string> = { worksheet: "ใบงาน", 
 export async function generateMetadata({ params }: { params: Promise<{ productId: string }> }): Promise<Metadata> {
   const { productId } = await params;
   const supabase = await createClient();
-  const { data: product } = await supabase.from("products").select("title, description, thumbnail_url").eq("id", productId).single();
+  const { data: product } = await supabase.from("products").select("title, description, thumbnail_url").eq("id", productId).maybeSingle();
   if (!product) return { title: "ไม่พบสินค้า" };
   return { title: `${product.title} — KruCraft Shop`, description: product.description || product.title, openGraph: { title: product.title, description: product.description || undefined, images: product.thumbnail_url ? [product.thumbnail_url] : undefined } };
 }
@@ -22,7 +22,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
   const { productId } = await params;
   const supabase = await createClient();
 
-  const { data: product } = await supabase.from("products").select("*, seller:profiles!seller_id(full_name)").eq("id", productId).single();
+  const { data: product } = await supabase.from("products").select("*, seller:profiles!seller_id(full_name)").eq("id", productId).maybeSingle();
   if (!product) notFound();
 
   const { data: { user } } = await supabase.auth.getUser();

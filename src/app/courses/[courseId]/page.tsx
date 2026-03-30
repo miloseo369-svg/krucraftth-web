@@ -14,7 +14,7 @@ import type { Metadata } from "next";
 export async function generateMetadata({ params }: { params: Promise<{ courseId: string }> }): Promise<Metadata> {
   const { courseId } = await params;
   const supabase = await createClient();
-  const { data: course } = await supabase.from("courses").select("title, description, thumbnail_url").eq("id", courseId).single();
+  const { data: course } = await supabase.from("courses").select("title, description, thumbnail_url").eq("id", courseId).maybeSingle();
   if (!course) return { title: "ไม่พบคอร์ส" };
   return { title: `${course.title} — KruCraft`, description: course.description || `เรียน ${course.title}`, openGraph: { title: course.title, description: course.description || undefined, images: course.thumbnail_url ? [course.thumbnail_url] : undefined } };
 }
@@ -23,7 +23,7 @@ export default async function CourseDetailPage({ params }: { params: Promise<{ c
   const { courseId } = await params;
   const supabase = await createClient();
 
-  const { data: course } = await supabase.from("courses").select("*, instructor:profiles(full_name, avatar_url)").eq("id", courseId).single();
+  const { data: course } = await supabase.from("courses").select("*, instructor:profiles(full_name, avatar_url)").eq("id", courseId).maybeSingle();
   if (!course) notFound();
 
   const { data: modules } = await supabase.from("modules").select("*, lessons(*)").eq("course_id", courseId).order("sequence");

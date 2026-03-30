@@ -159,7 +159,7 @@ export async function PATCH(request: NextRequest) {
 
         // Record seller earnings
         if (purchase && product.commission_rate < 1) {
-          const { data: prod } = await serviceClient.from("products").select("seller_id").eq("id", slip.item_id).single();
+          const { data: prod } = await serviceClient.from("products").select("seller_id").eq("id", slip.item_id).maybeSingle();
           if (prod?.seller_id) {
             await serviceClient.from("seller_earnings").insert({
               seller_id: prod.seller_id,
