@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { askClaude, parseClaudeJSON } from "@/lib/claude";
+import { spendCredits } from "@/lib/credits";
 
 async function requireInstructorOrAdmin() {
   const supabase = await createClient();
@@ -22,6 +23,17 @@ export async function POST(request: NextRequest) {
   const adminOnlyTools = ["business-analysis", "competitor-analysis", "risk-analysis"];
   if (adminOnlyTools.includes(tool) && auth.role !== "admin") {
     return NextResponse.json({ error: "เฉพาะ Admin เท่านั้น" }, { status: 403 });
+  }
+
+  // Determine credit action
+  const creditAction = tool === "doc-assist" ? "doc_ai_write" : "ai_tool_use";
+
+  // Check & spend credits (admin is free)
+  if (auth.role !== "admin") {
+    const spend = await spendCredits(auth.user.id, creditAction, `AI: ${tool}`, "ai_tool", tool);
+    if (!spend.success) {
+      return NextResponse.json({ error: spend.error, needCredits: true }, { status: 402 });
+    }
   }
 
   try {
