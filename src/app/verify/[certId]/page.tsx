@@ -1,6 +1,12 @@
+import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
 import { notFound } from "next/navigation";
 import Link from "next/link";
+
+export const metadata: Metadata = {
+  title: "ตรวจสอบใบประกาศ",
+  description: "ตรวจสอบความถูกต้องของใบประกาศนียบัตร KruCraft",
+};
 
 export default async function VerifyCertPage({ params }: { params: Promise<{ certId: string }> }) {
   const { certId } = await params;

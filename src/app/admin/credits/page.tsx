@@ -1,5 +1,8 @@
+import type { Metadata } from "next";
 import { requireAdmin } from "@/lib/supabase/admin";
 import AdminCreditsClient from "./AdminCreditsClient";
+
+export const metadata: Metadata = { title: "จัดการเครดิต" };
 
 export default async function AdminCreditsPage() {
   const { supabase } = await requireAdmin();

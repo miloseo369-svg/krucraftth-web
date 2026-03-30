@@ -1,5 +1,8 @@
+import type { Metadata } from "next";
 import { requireAdmin } from "@/lib/supabase/admin";
 import Link from "next/link";
+
+export const metadata: Metadata = { title: "แดชบอร์ดแอดมิน" };
 
 export default async function AdminPage() {
   const { supabase } = await requireAdmin();

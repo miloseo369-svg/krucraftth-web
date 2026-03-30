@@ -1,6 +1,9 @@
+import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
 import { getBalance } from "@/lib/credits";
 import CreditsClient from "./CreditsClient";
+
+export const metadata: Metadata = { title: "เครดิตของฉัน" };
 
 export default async function CreditsPage() {
   const supabase = await createClient();

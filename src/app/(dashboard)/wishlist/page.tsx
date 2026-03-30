@@ -1,6 +1,9 @@
+import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
 import Link from "next/link";
 import PremiumCourseCard from "@/components/PremiumCourseCard";
+
+export const metadata: Metadata = { title: "คอร์สที่บันทึก" };
 
 export default async function WishlistPage() {
   const supabase = await createClient();

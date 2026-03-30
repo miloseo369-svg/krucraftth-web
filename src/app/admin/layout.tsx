@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { Suspense } from "react";
 import { requireAdmin } from "@/lib/supabase/admin";
 import Logo from "@/components/Logo";
 import AdminSidebar from "./AdminSidebar";
@@ -23,7 +24,9 @@ export default async function AdminLayout({ children }: { children: React.ReactN
             <Link href="/dashboard" className="text-xs text-emerald-400 hover:text-emerald-300 transition">← กลับ</Link>
           </div>
         </header>
-        <main className="p-4 sm:p-6 lg:p-8 max-w-6xl">{children}</main>
+        <main className="p-4 sm:p-6 lg:p-8 max-w-6xl">
+          <Suspense>{children}</Suspense>
+        </main>
       </div>
     </div>
   );

@@ -1,8 +1,14 @@
+import type { Metadata } from "next";
 import Link from "next/link";
+import { Suspense } from "react";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import Logo from "@/components/Logo";
 import UserDropdown from "@/components/UserDropdown";
+
+export const metadata: Metadata = {
+  title: "แดชบอร์ด",
+};
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient();
@@ -52,7 +58,9 @@ export default async function DashboardLayout({ children }: { children: React.Re
           />
         </div>
       </nav>
-      <main className="max-w-6xl mx-auto px-4 sm:px-6 py-5 sm:py-8">{children}</main>
+      <main className="max-w-6xl mx-auto px-4 sm:px-6 py-5 sm:py-8">
+        <Suspense>{children}</Suspense>
+      </main>
     </div>
   );
 }

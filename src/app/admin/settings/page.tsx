@@ -1,5 +1,8 @@
+import type { Metadata } from "next";
 import { requireAdmin } from "@/lib/supabase/admin";
 import AdminSettingsForm from "./AdminSettingsForm";
+
+export const metadata: Metadata = { title: "ตั้งค่าระบบ" };
 
 export default async function AdminSettingsPage() {
   const { supabase } = await requireAdmin();

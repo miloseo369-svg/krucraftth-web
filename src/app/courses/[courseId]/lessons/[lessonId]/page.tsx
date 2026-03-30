@@ -1,8 +1,11 @@
+import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
 import { notFound, redirect } from "next/navigation";
 import Link from "next/link";
 import VideoPlayer from "@/components/VideoPlayer";
 import LessonDiscussion from "@/components/LessonDiscussion";
+
+export const metadata: Metadata = { title: "บทเรียน" };
 import QuizPlayer from "@/components/QuizPlayer";
 
 export default async function LessonPage({ params }: { params: Promise<{ courseId: string; lessonId: string }> }) {

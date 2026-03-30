@@ -1,7 +1,10 @@
+import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { maskEmail } from "@/lib/utils";
 import DownloadGrid from "./DownloadGrid";
+
+export const metadata: Metadata = { title: "ดาวน์โหลด" };
 
 export default async function DownloadPage({ params }: { params: Promise<{ orderId: string }> }) {
   const { orderId } = await params;

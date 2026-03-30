@@ -1,5 +1,8 @@
+import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
 import DocCreatorClient from "./DocCreatorClient";
+
+export const metadata: Metadata = { title: "สร้างเอกสาร" };
 
 export default async function DocCreatorPage() {
   const supabase = await createClient();

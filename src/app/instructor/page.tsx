@@ -1,6 +1,9 @@
+import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import Link from "next/link";
+
+export const metadata: Metadata = { title: "ผู้สอน" };
 import PremiumCourseCard from "@/components/PremiumCourseCard";
 import OnboardingChecklist from "@/components/OnboardingChecklist";
 import Logo from "@/components/Logo";

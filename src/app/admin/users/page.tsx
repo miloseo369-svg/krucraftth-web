@@ -1,5 +1,8 @@
+import type { Metadata } from "next";
 import { requireAdmin } from "@/lib/supabase/admin";
 import AdminUserActions from "./AdminUserActions";
+
+export const metadata: Metadata = { title: "จัดการผู้ใช้" };
 
 export default async function AdminUsersPage() {
   const { supabase, user: currentUser } = await requireAdmin();

@@ -1,5 +1,11 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
+
+export const metadata: Metadata = {
+  title: "KruCraft — แพลตฟอร์มเรียนออนไลน์สำหรับครูไทย",
+  description: "สร้างสื่อการสอน คอร์สเรียน และเอกสารอัจฉริยะ บนแพลตฟอร์มที่ออกแบบมาเพื่อครูไทย",
+};
 import Badge2 from "@/components/ui/Badge2";
 import PremiumCourseCard from "@/components/PremiumCourseCard";
 import Logo from "@/components/Logo";

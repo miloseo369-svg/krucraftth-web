@@ -9,7 +9,7 @@
    Fonts: Sora (headings) + Sarabun (Thai body)
    =================================================== */
 
-@import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=Sarabun:wght@300;400;500;600;700&display=swap');
+/* Sora + Sarabun are preloaded via next/font/google in layout.tsx */
 
 :root {
   /* --- Backgrounds --- */
@@ -129,7 +129,7 @@
 
 /* === Typography === */
 h1, h2, h3, h4, h5, h6 {
-  font-family: 'Sora', var(--font-kanit), var(--font-prompt), sans-serif;
+  font-family: var(--font-sora), var(--font-kanit), var(--font-prompt), sans-serif;
   line-height: 1.25;
   letter-spacing: -0.025em;
 }
@@ -142,7 +142,7 @@ p, span, li, td, th, label, a {
 @theme inline {
   --color-background: var(--bg-base);
   --color-foreground: var(--text-primary);
-  --font-sans: 'Sarabun', var(--font-prompt), sans-serif;
+  --font-sans: var(--font-sarabun), var(--font-prompt), sans-serif;
   --font-mono: var(--font-geist-mono);
 }
 
@@ -170,7 +170,7 @@ input, select, textarea {
     box-sizing: border-box;
   }
   body {
-    font-family: 'Sarabun', var(--font-prompt), sans-serif;
+    font-family: var(--font-sarabun), var(--font-prompt), sans-serif;
     background: var(--bg-base);
     color: var(--text-primary);
     -webkit-tap-highlight-color: transparent;

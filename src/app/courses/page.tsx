@@ -1,6 +1,12 @@
+import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
 import Link from "next/link";
 import PublicNav from "@/components/PublicNav";
+
+export const metadata: Metadata = {
+  title: "คอร์สเรียนทั้งหมด",
+  description: "เรียนรู้ทักษะใหม่ผ่านคอร์สเรียนออนไลน์คุณภาพสูง จาก KruCraft",
+};
 import Badge2 from "@/components/ui/Badge2";
 import PremiumCourseCard from "@/components/PremiumCourseCard";
 

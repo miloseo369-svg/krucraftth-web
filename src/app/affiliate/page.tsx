@@ -1,6 +1,9 @@
+import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import AffiliateDashboard from "./AffiliateDashboard";
+
+export const metadata: Metadata = { title: "แนะนำเพื่อน" };
 
 export default async function AffiliatePage() {
   const supabase = await createClient();

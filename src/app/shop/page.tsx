@@ -1,6 +1,12 @@
+import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
 import Link from "next/link";
 import PublicNav from "@/components/PublicNav";
+
+export const metadata: Metadata = {
+  title: "ร้านค้า",
+  description: "สื่อการสอน เอกสาร และผลิตภัณฑ์ดิจิทัลสำหรับครู",
+};
 import Badge2 from "@/components/ui/Badge2";
 
 const CATS: Record<string, { label: string; icon: string; gradient: string; svg: string }> = {

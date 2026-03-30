@@ -1,5 +1,8 @@
+import type { Metadata } from "next";
 import { requireAdmin } from "@/lib/supabase/admin";
 import DiscountCodeActions from "./DiscountCodeActions";
+
+export const metadata: Metadata = { title: "โค้ดส่วนลด" };
 
 export default async function DiscountCodesPage() {
   const { supabase } = await requireAdmin();

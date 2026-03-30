@@ -1,5 +1,8 @@
+import type { Metadata } from "next";
 import { requireAdmin } from "@/lib/supabase/admin";
 import GemManager from "./GemManager";
+
+export const metadata: Metadata = { title: "Gem Links" };
 
 export default async function GemsPage() {
   const { supabase } = await requireAdmin();

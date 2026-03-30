@@ -1,5 +1,8 @@
+import type { Metadata } from "next";
 import { requireAdmin } from "@/lib/supabase/admin";
 import AIToolsClient from "./AIToolsClient";
+
+export const metadata: Metadata = { title: "AI Tools" };
 
 export default async function AIToolsPage() {
   const { supabase, user } = await requireAdmin();

@@ -1,6 +1,9 @@
+import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
 import Link from "next/link";
 import { toBuddhistDate } from "@/lib/utils";
+
+export const metadata: Metadata = { title: "คำสั่งซื้อ" };
 
 export default async function OrdersPage() {
   const supabase = await createClient();

@@ -1,7 +1,10 @@
+import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
 import { notFound, redirect } from "next/navigation";
 import Link from "next/link";
 import AdminLessonManager from "./AdminLessonManager";
+
+export const metadata: Metadata = { title: "แก้ไขคอร์ส" };
 
 export default async function AdminCourseDetailPage({ params }: { params: Promise<{ courseId: string }> }) {
   const { courseId } = await params;

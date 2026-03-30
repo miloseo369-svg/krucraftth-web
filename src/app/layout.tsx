@@ -1,20 +1,36 @@
 import type { Metadata, Viewport } from "next";
-import { Prompt, Kanit } from "next/font/google";
+import { Sora, Sarabun, Prompt, Kanit } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
 import { ToastProvider } from "@/components/Toast";
 import { ConfirmProvider } from "@/components/ConfirmModal";
 
+const sora = Sora({
+  variable: "--font-sora",
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700", "800"],
+  display: "swap",
+});
+
+const sarabun = Sarabun({
+  variable: "--font-sarabun",
+  subsets: ["thai", "latin"],
+  weight: ["300", "400", "500", "600", "700"],
+  display: "swap",
+});
+
 const prompt = Prompt({
   variable: "--font-prompt",
   subsets: ["thai", "latin"],
   weight: ["300", "400", "500", "600", "700"],
+  display: "swap",
 });
 
 const kanit = Kanit({
   variable: "--font-kanit",
   subsets: ["thai", "latin"],
   weight: ["400", "500", "600", "700"],
+  display: "swap",
 });
 
 export const viewport: Viewport = {
@@ -24,8 +40,11 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: "KruCraft LMS — ระบบเรียนออนไลน์",
-  description: "ระบบจัดการเรียนรู้ออนไลน์ด้วยวิดีโอ",
+  title: {
+    default: "KruCraft — แพลตฟอร์มเรียนออนไลน์สำหรับครูไทย",
+    template: "%s | KruCraft",
+  },
+  description: "แพลตฟอร์มเรียนออนไลน์สำหรับครูไทย สร้างสื่อการสอน คอร์สเรียน และเอกสารอัจฉริยะ",
 };
 
 export default function RootLayout({
@@ -34,8 +53,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="th" className={cn("h-full antialiased", prompt.variable, kanit.variable)}>
-      <body className="font-[family-name:var(--font-prompt)] min-h-full flex flex-col text-white" style={{ background: "var(--bg-primary)", lineHeight: "1.6" }}>
+    <html lang="th" className={cn("h-full antialiased", sora.variable, sarabun.variable, prompt.variable, kanit.variable)}>
+      <body className="font-[family-name:var(--font-sarabun)] min-h-full flex flex-col text-white" style={{ background: "var(--bg-primary)", lineHeight: "1.6" }}>
         <ToastProvider>
           <ConfirmProvider>
             {children}

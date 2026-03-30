@@ -1,5 +1,8 @@
+import type { Metadata } from "next";
 import { requireAdmin } from "@/lib/supabase/admin";
 import AdminCourseActions from "./AdminCourseActions";
+
+export const metadata: Metadata = { title: "จัดการคอร์ส" };
 
 export default async function AdminCoursesPage() {
   const { supabase } = await requireAdmin();

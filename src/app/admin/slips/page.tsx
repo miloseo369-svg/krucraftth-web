@@ -1,5 +1,8 @@
+import type { Metadata } from "next";
 import { requireAdmin } from "@/lib/supabase/admin";
 import AdminSlipActions from "./AdminSlipActions";
+
+export const metadata: Metadata = { title: "ตรวจสลิป" };
 
 export default async function AdminSlipsPage() {
   const { supabase } = await requireAdmin();

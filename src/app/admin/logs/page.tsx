@@ -1,4 +1,7 @@
+import type { Metadata } from "next";
 import { requireAdmin } from "@/lib/supabase/admin";
+
+export const metadata: Metadata = { title: "Activity Log" };
 
 export default async function AdminLogsPage() {
   const { supabase } = await requireAdmin();
