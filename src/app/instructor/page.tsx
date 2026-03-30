@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import PremiumCourseCard from "@/components/PremiumCourseCard";
+import ComingSoonBadge from "@/components/ComingSoonBadge";
 import Logo from "@/components/Logo";
 
 export default async function InstructorPage() {
@@ -51,8 +52,11 @@ export default async function InstructorPage() {
       <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-2xl font-semibold text-white">แดชบอร์ดผู้สอน</h1>
-          <p className="text-sm mt-1" style={{ color: "var(--text-secondary)" }}>จัดการคอร์สและติดตามผลการเรียนของนักเรียน</p>
+          <div className="flex items-center gap-2">
+            <h1 className="text-2xl font-semibold text-white">แดชบอร์ดผู้สอน</h1>
+            <ComingSoonBadge label="ดูได้อย่างเดียว" size="sm" />
+          </div>
+          <p className="text-sm mt-1" style={{ color: "var(--text-secondary)" }}>จัดการคอร์สและติดตามผลการเรียนของนักเรียน · การแก้ไขต้องทำผ่าน Admin</p>
         </div>
 
         {/* Stats */}

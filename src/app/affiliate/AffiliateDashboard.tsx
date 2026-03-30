@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/components/Toast";
+import ComingSoonBadge from "@/components/ComingSoonBadge";
 import Logo from "@/components/Logo";
 
 interface Affiliate {
@@ -79,6 +80,7 @@ export default function AffiliateDashboard({ affiliate, payouts, stats, userName
           <div className="flex items-center gap-6">
             <Logo />
             <span className="text-sm font-medium text-white">Affiliate Program</span>
+            <ComingSoonBadge label="Beta" />
           </div>
           <Link href="/dashboard" className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium border border-emerald-500/20 text-emerald-400 hover:text-emerald-300 hover:border-emerald-500/40 transition-all">
             <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
