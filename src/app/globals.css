@@ -4,26 +4,75 @@
 
 @custom-variant dark (&:is(.dark *));
 
-/* === KruCraft Premium Dark Theme === */
-:root {
-  --bg-primary: #0B1120;
-  --bg-secondary: #111827;
-  --bg-card: #151d2e;
-  --bg-hover: #1c2640;
-  --border: rgba(255,255,255,0.07);
-  --border-hover: rgba(255,255,255,0.14);
-  --text-primary: #f1f5f9;
-  --text-secondary: #94a3b8;
-  --text-muted: #475569;
-  --accent: #10b981;
-  --accent-hover: #059669;
-  --accent-dim: rgba(16,185,129,0.08);
-  --accent-glow: rgba(16,185,129,0.15);
-  --radius: 0.75rem;
+/* ===================================================
+   KruCraft Design System v2
+   Fonts: Sora (headings) + Sarabun (Thai body)
+   =================================================== */
 
-  /* Glassmorphism */
-  --glass-bg: rgba(15,23,42,0.75);
-  --glass-border: rgba(255,255,255,0.08);
+@import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=Sarabun:wght@300;400;500;600;700&display=swap');
+
+:root {
+  /* --- Backgrounds --- */
+  --bg-base: #060a12;
+  --bg-surface: #0c1220;
+  --bg-raised: #111c2e;
+  --bg-overlay: #16243a;
+  --bg-hover: #1c2d45;
+
+  /* Legacy aliases (compat กับ pages เก่า) */
+  --bg-primary: var(--bg-base);
+  --bg-secondary: var(--bg-surface);
+  --bg-card: var(--bg-raised);
+
+  /* --- Borders --- */
+  --border-dim: rgba(255,255,255,0.06);
+  --border-subtle: rgba(255,255,255,0.10);
+  --border-mid: rgba(255,255,255,0.16);
+  --border: var(--border-dim);
+  --border-hover: var(--border-mid);
+
+  /* --- Text --- */
+  --text-primary: #eef1f7;
+  --text-secondary: #7e92aa;
+  --text-muted: #3d506a;
+
+  /* --- Accent (Emerald) --- */
+  --em: #10b981;
+  --em-dim: rgba(16,185,129,0.12);
+  --em-border: rgba(16,185,129,0.25);
+  --accent: var(--em);
+  --accent-hover: #0d9e6e;
+  --accent-dim: var(--em-dim);
+  --accent-glow: rgba(16,185,129,0.15);
+
+  /* --- Purple --- */
+  --purple: #7c3aed;
+  --purple-dim: rgba(124,58,237,0.15);
+  --purple-border: rgba(124,58,237,0.30);
+
+  /* --- Amber --- */
+  --amber: #f59e0b;
+  --amber-dim: rgba(245,158,11,0.15);
+
+  /* --- Red --- */
+  --red: #ef4444;
+  --red-dim: rgba(239,68,68,0.15);
+
+  /* --- Blue --- */
+  --blue: #3b82f6;
+  --blue-dim: rgba(59,130,246,0.15);
+
+  /* --- Radius --- */
+  --r-sm: 6px;
+  --r-md: 10px;
+  --r-lg: 14px;
+  --r-xl: 18px;
+  --r-full: 9999px;
+  --radius: var(--r-lg);
+
+  /* --- Glass --- */
+  --glass-bg: rgba(12,18,32,0.80);
+  --glass-border: var(--border-dim);
   --glass-blur: 12px;
 }
 
@@ -51,7 +100,13 @@
 .scrollbar-hide::-webkit-scrollbar { display: none; }
 .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
 
-/* === Glassmorphism Card === */
+/* Custom scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.20); }
+
+/* === Glassmorphism === */
 .glass {
   background: var(--glass-bg);
   backdrop-filter: blur(var(--glass-blur));
@@ -60,40 +115,40 @@
 }
 
 .glass-hover:hover {
-  background: rgba(15,23,42,0.85);
-  border-color: rgba(255,255,255,0.12);
+  background: rgba(12,18,32,0.90);
+  border-color: var(--border-subtle);
 }
 
-/* === Grid Pattern Background === */
+/* === Grid Pattern === */
 .bg-grid {
   background-image:
-    linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+    linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
   background-size: 64px 64px;
 }
 
-/* === Heading Font === */
-h1, h2, h3 {
-  font-family: var(--font-kanit), var(--font-prompt), sans-serif;
-  line-height: 1.3;
+/* === Typography === */
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Sora', var(--font-kanit), var(--font-prompt), sans-serif;
+  line-height: 1.25;
+  letter-spacing: -0.025em;
 }
 
-/* === Thai-optimized body line-height === */
 p, span, li, td, th, label, a {
   line-height: 1.6;
 }
 
 /* === Tailwind Theme === */
 @theme inline {
-  --color-background: var(--bg-primary);
+  --color-background: var(--bg-base);
   --color-foreground: var(--text-primary);
-  --font-sans: var(--font-prompt), sans-serif;
+  --font-sans: 'Sarabun', var(--font-prompt), sans-serif;
   --font-mono: var(--font-geist-mono);
 }
 
-/* === Mobile Improvements === */
+/* === Mobile === */
 input, select, textarea {
-  font-size: 16px !important; /* ป้องกัน iOS auto-zoom */
+  font-size: 16px !important;
 }
 
 .touch-manipulation {
@@ -104,12 +159,19 @@ input, select, textarea {
   padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 
+.pt-safe {
+  padding-top: env(safe-area-inset-top, 0px);
+}
+
+/* === Base === */
 @layer base {
   * {
-    @apply border-[var(--border)];
+    @apply border-[var(--border-dim)];
+    box-sizing: border-box;
   }
   body {
-    background: var(--bg-primary);
+    font-family: 'Sarabun', var(--font-prompt), sans-serif;
+    background: var(--bg-base);
     color: var(--text-primary);
     -webkit-tap-highlight-color: transparent;
   }
