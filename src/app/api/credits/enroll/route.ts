@@ -40,9 +40,20 @@ export async function POST(request: NextRequest) {
   const result = rpcResult?.[0];
   if (!result?.success) return NextResponse.json({ error: result?.error_message || "เครดิตไม่เพียงพอ", needCredits: true }, { status: 402 });
 
-  // ลงทะเบียน
+  // ลงทะเบียน — ถ้า fail ให้คืนเครดิต
   const { error } = await supabase.from("enrollments").insert({ user_id: user.id, course_id: courseId });
-  if (error) return NextResponse.json({ error: "ลงทะเบียนไม่สำเร็จ" }, { status: 500 });
+  if (error) {
+    // Refund credits
+    await serviceClient.rpc("add_credits", {
+      p_user_id: user.id,
+      p_amount: course.credit_price,
+      p_description: `คืนเครดิต: ลงทะเบียนไม่สำเร็จ (${course.title})`,
+      p_type: "refund",
+      p_ref_type: "course",
+      p_ref_id: courseId,
+    });
+    return NextResponse.json({ error: "ลงทะเบียนไม่สำเร็จ เครดิตได้คืนแล้ว" }, { status: 500 });
+  }
 
   return NextResponse.json({ success: true, balance: result.new_balance });
 }

@@ -21,7 +21,7 @@ export default function CourseReviews({ courseId, reviews, isEnrolled, userId }:
   const router = useRouter();
   const supabase = createClient();
 
-  const hasReviewed = reviews.some((r) => r.user && userId && r.id === userId);
+  // hasReviewed is determined server-side via unique constraint; form handles upsert
   const avg = reviews.length > 0 ? reviews.reduce((s, r) => s + r.rating, 0) / reviews.length : 0;
 
   async function handleSubmit(e: React.FormEvent) {

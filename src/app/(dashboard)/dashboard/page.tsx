@@ -105,7 +105,7 @@ export default async function DashboardPage() {
               {/* Thumbnail */}
               <div className="aspect-[16/10] relative overflow-hidden">
                 {cp.course?.thumbnail_url ? (
-                  <img src={cp.course.thumbnail_url} alt="" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                  <img src={cp.course.thumbnail_url} alt={cp.course?.title || "ปกคอร์ส"} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
                 ) : (
                   <div className="w-full h-full bg-gradient-to-br from-emerald-900/40 to-teal-800/20 flex items-center justify-center">
                     <svg className="w-10 h-10 text-emerald-500/30" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" /></svg>

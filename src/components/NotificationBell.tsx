@@ -36,7 +36,9 @@ export default function NotificationBell() {
   }, []);
 
   async function loadNotifications() {
-    const { data } = await supabase.from("notifications").select("*").order("created_at", { ascending: false }).limit(10);
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+    const { data } = await supabase.from("notifications").select("*").eq("user_id", user.id).order("created_at", { ascending: false }).limit(10);
     if (data) {
       setNotifications(data);
       setUnread(data.filter((n) => !n.is_read).length);

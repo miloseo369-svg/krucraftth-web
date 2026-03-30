@@ -116,6 +116,7 @@ export async function PATCH(request: NextRequest) {
     .single();
 
   if (!slip) return NextResponse.json({ error: "ไม่พบสลิป" }, { status: 404 });
+  if (slip.status !== "pending") return NextResponse.json({ error: "สลิปนี้ดำเนินการแล้ว" }, { status: 400 });
 
   // อัพเดตสถานะ
   await serviceClient

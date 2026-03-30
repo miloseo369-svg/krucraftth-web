@@ -210,7 +210,7 @@ export default async function CourseDetailPage({ params }: { params: Promise<{ c
           <div className="rounded-2xl p-6 border border-white/[0.07]" style={{ background: "var(--bg-card)" }}>
             <div className="flex items-center gap-4">
               {course.instructor?.avatar_url ? (
-                <img src={course.instructor.avatar_url} alt="" className="w-16 h-16 rounded-full object-cover border-2 border-emerald-500/30" />
+                <img src={course.instructor.avatar_url} alt={course.instructor?.full_name || "ผู้สอน"} className="w-16 h-16 rounded-full object-cover border-2 border-emerald-500/30" />
               ) : (
                 <div className="w-16 h-16 rounded-full bg-gradient-to-br from-emerald-500 to-teal-400 flex items-center justify-center text-black text-xl font-bold">
                   {(course.instructor?.full_name || "K")[0]}
