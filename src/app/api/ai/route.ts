@@ -26,6 +26,16 @@ export async function POST(request: NextRequest) {
 
   try {
     const prompt = buildPrompt(tool, input);
+
+    // doc-assist returns plain Thai text, not JSON
+    if (tool === "doc-assist") {
+      const raw = await askClaude([{ role: "user", content: prompt }], {
+        system: "คุณเป็นผู้เชี่ยวชาญด้านการเขียนเอกสารวิชาการภาษาไทย เขียนเนื้อหาเป็นภาษาไทยที่สมบูรณ์ ใช้ภาษาราชการ ห้ามตอบเป็น JSON ตอบเป็นข้อความธรรมดาเท่านั้น",
+        maxTokens: 4096,
+      });
+      return NextResponse.json({ result: raw });
+    }
+
     const raw = await askClaude([{ role: "user", content: prompt }], {
       system: "คุณเป็นผู้เชี่ยวชาญด้าน EdTech และการตลาดการศึกษาไทย ตอบเป็นภาษาไทยเสมอ ตอบเป็น JSON เท่านั้น ห้ามใส่ markdown code block",
       maxTokens: 4096,
@@ -41,6 +51,9 @@ export async function POST(request: NextRequest) {
 
 function buildPrompt(tool: string, input: Record<string, unknown>): string {
   switch (tool) {
+    case "doc-assist":
+      return input.prompt as string;
+
     case "lesson-plan":
       return `สร้างแผนการสอนวิชา "${input.subject}" ระดับชั้น ${input.grade} จำนวน ${input.hours} ชั่วโมง\nตอบเป็น JSON: {"title":"","objective":"","materials":[],"activities":[{"time":"","activity":"","detail":""}],"assessment":"","homework":""}`;
 
