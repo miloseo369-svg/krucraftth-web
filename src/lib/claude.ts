@@ -1,4 +1,4 @@
-const CLAUDE_API_KEY = process.env.CLAUDE_API_KEY;
+import { createServiceClient } from "@/lib/supabase/admin";
 
 interface ClaudeMessage {
   role: "user" | "assistant";
@@ -10,14 +10,33 @@ interface ClaudeOptions {
   maxTokens?: number;
 }
 
+async function getClaudeApiKey(): Promise<string> {
+  // Try DB settings first, then env var
+  try {
+    const supabase = createServiceClient();
+    const { data } = await supabase
+      .from("site_settings")
+      .select("value")
+      .eq("key", "claude_api_key")
+      .maybeSingle();
+    if (data?.value) return data.value;
+  } catch {
+    // DB not available, fall through
+  }
+
+  if (process.env.CLAUDE_API_KEY) return process.env.CLAUDE_API_KEY;
+
+  throw new Error("กรุณาตั้งค่า Claude API Key ในหน้า Admin > ตั้งค่า");
+}
+
 export async function askClaude(messages: ClaudeMessage[], options: ClaudeOptions = {}): Promise<string> {
-  if (!CLAUDE_API_KEY) throw new Error("CLAUDE_API_KEY not configured");
+  const apiKey = await getClaudeApiKey();
 
   const res = await fetch("https://api.anthropic.com/v1/messages", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      "x-api-key": CLAUDE_API_KEY,
+      "x-api-key": apiKey,
       "anthropic-version": "2023-06-01",
     },
     body: JSON.stringify({
@@ -34,12 +53,10 @@ export async function askClaude(messages: ClaudeMessage[], options: ClaudeOption
   }
 
   const data = await res.json();
-  const text = data.content?.[0]?.text || "";
-  return text;
+  return data.content?.[0]?.text || "";
 }
 
 export function parseClaudeJSON<T>(text: string): T {
-  // Strip markdown code blocks if present
   let clean = text.trim();
   if (clean.startsWith("```")) {
     clean = clean.replace(/^```(?:json)?\n?/, "").replace(/\n?```$/, "");
