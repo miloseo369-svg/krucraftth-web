@@ -190,94 +190,156 @@ export default function DocCreatorClient({ userName, savedDocs, gemLinks }: Prop
 
   // === STEP 1: SELECT ===
   if (step === "select") return (
-    <div className="animate-fade-in max-w-4xl mx-auto">
-      <div className="flex items-center gap-3 mb-6">
-        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-500 flex items-center justify-center shadow-lg">
-          <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
-        </div>
-        <div>
-          <h1 className="text-xl font-bold text-white">สร้างเอกสาร</h1>
-          <p className="text-xs" style={{ color: "var(--text-muted)" }}>เลือก Template → กรอกข้อมูล → AI ช่วยเขียน → แนบรูป → Preview → Export</p>
+    <div className="animate-fade-in max-w-5xl mx-auto">
+      {/* Hero */}
+      <div className="relative rounded-2xl overflow-hidden p-8 sm:p-10 mb-8 border border-white/[0.07]" style={{ background: "linear-gradient(135deg, rgba(59,130,246,0.08), var(--bg-card), rgba(139,92,246,0.06))" }}>
+        <div className="absolute top-0 right-0 w-72 h-72 bg-blue-500/5 rounded-full blur-[100px]" />
+        <div className="absolute bottom-0 left-0 w-48 h-48 bg-purple-500/5 rounded-full blur-[80px]" />
+        <div className="relative">
+          <div className="flex items-center gap-3 mb-3">
+            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-xl shadow-blue-500/20">
+              <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+            </div>
+            <div>
+              <h1 className="text-2xl font-bold text-white">สร้างเอกสารวิชาการ</h1>
+              <p className="text-xs" style={{ color: "var(--text-secondary)" }}>เลือก Template → กรอกข้อมูล → AI ช่วยเขียน → แนบรูป → Preview → Export</p>
+            </div>
+          </div>
+          {/* Steps indicator */}
+          <div className="flex items-center gap-2 mt-4">
+            {["เลือก Template", "กรอกข้อมูล", "เขียนเนื้อหา", "Preview", "Export"].map((s, i) => (
+              <div key={s} className="flex items-center gap-2">
+                <div className={`w-6 h-6 rounded-full text-[9px] font-bold flex items-center justify-center ${i === 0 ? "bg-emerald-500 text-black" : "bg-white/10 text-white/40"}`}>{i + 1}</div>
+                <span className={`text-[10px] hidden sm:inline ${i === 0 ? "text-emerald-400 font-medium" : ""}`} style={i !== 0 ? { color: "var(--text-muted)" } : {}}>{s}</span>
+                {i < 4 && <div className="w-4 h-px bg-white/10 hidden sm:block" />}
+              </div>
+            ))}
+          </div>
         </div>
       </div>
 
       {/* Category tabs */}
-      <div className="flex gap-2 mb-4">
-        {[{ id: "academic", label: "📄 วิชาการ" }, { id: "ebook", label: "📖 E-book" }].map((c) => (
-          <button key={c.id} onClick={() => setTemplateCategory(c.id)} className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${templateCategory === c.id ? "bg-emerald-500 text-black" : "border border-white/[0.07] hover:bg-white/5"}`} style={templateCategory !== c.id ? { color: "var(--text-secondary)" } : {}}>
-            {c.label}
+      <div className="flex gap-2 mb-6">
+        {[{ id: "academic", label: "📄 เอกสารวิชาการ", desc: "วิจัย ใบงาน แผนการสอน SAR" }, { id: "ebook", label: "📖 E-book หลายสไตล์", desc: "นิยาย ขาย อสังหา คอร์ส ความรู้" }].map((c) => (
+          <button key={c.id} onClick={() => setTemplateCategory(c.id)} className={`flex-1 p-4 rounded-xl text-left transition-all ${templateCategory === c.id ? "bg-emerald-500/10 border-2 border-emerald-500/40" : "border border-white/[0.07] hover:border-white/[0.15] hover:bg-white/[0.02]"}`}>
+            <span className={`text-sm font-semibold ${templateCategory === c.id ? "text-emerald-400" : "text-white"}`}>{c.label}</span>
+            <p className="text-[10px] mt-0.5" style={{ color: "var(--text-muted)" }}>{c.desc}</p>
           </button>
         ))}
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 mb-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
         {filteredTemplates.map((t) => (
-          <button key={t.id} onClick={() => startTemplate(t)} className="text-left rounded-2xl border border-white/[0.07] p-5 hover:border-white/[0.15] hover:-translate-y-0.5 transition-all" style={{ background: "var(--bg-card)" }}>
-            <div className={`w-11 h-11 rounded-xl bg-gradient-to-br ${t.gradient} flex items-center justify-center text-xl mb-3 shadow-lg`}>{t.icon}</div>
-            <h3 className="text-sm font-semibold text-white">{t.name}</h3>
-            <p className="text-xs mt-1" style={{ color: "var(--text-muted)" }}>{t.desc}</p>
-            <p className="text-[10px] mt-2" style={{ color: "var(--text-muted)" }}>{t.sections.length} ส่วน</p>
+          <button key={t.id} onClick={() => startTemplate(t)} className="group relative text-left rounded-2xl border border-white/[0.07] p-6 hover:border-white/[0.15] hover:-translate-y-1 hover:shadow-[0_8px_30px_rgba(0,0,0,0.3)] transition-all duration-300 overflow-hidden" style={{ background: "var(--bg-card)" }}>
+            {/* Background glow */}
+            <div className={`absolute inset-0 bg-gradient-to-br ${t.gradient} opacity-0 group-hover:opacity-[0.04] transition-opacity duration-500`} />
+            <div className="relative">
+              <div className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${t.gradient} flex items-center justify-center text-xl mb-4 shadow-lg group-hover:scale-110 transition-transform duration-500`}>{t.icon}</div>
+              <h3 className="text-sm font-bold text-white group-hover:text-emerald-400 transition-colors">{t.name}</h3>
+              <p className="text-xs mt-1.5" style={{ color: "var(--text-secondary)", lineHeight: "1.5" }}>{t.desc}</p>
+              <div className="flex items-center justify-between mt-4 pt-3 border-t border-white/[0.05]">
+                <span className="text-[10px]" style={{ color: "var(--text-muted)" }}>{t.sections.length} ส่วน</span>
+                <span className="text-[10px] font-medium text-emerald-400 opacity-0 group-hover:opacity-100 transition-opacity">เริ่มสร้าง →</span>
+              </div>
+            </div>
           </button>
         ))}
       </div>
 
-      {savedDocs.length > 0 && (<>
-        <h2 className="text-sm font-semibold text-white mb-3">เอกสารที่บันทึกไว้</h2>
-        <div className="space-y-2">
-          {savedDocs.map((d) => (
-            <div key={d.id} className="rounded-xl border border-white/[0.07] p-4 flex items-center gap-3" style={{ background: "var(--bg-card)" }}>
-              <div className="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center text-sm">{TEMPLATES.find((t) => t.id === d.template_type)?.icon || "📄"}</div>
-              <div className="flex-1 min-w-0"><p className="text-sm font-medium text-white truncate">{d.title}</p><p className="text-[10px]" style={{ color: "var(--text-muted)" }}>{new Date(d.updated_at).toLocaleDateString("th-TH")}</p></div>
-              <span className={`text-[10px] px-2 py-0.5 rounded-full ${d.status === "completed" ? "bg-emerald-500/10 text-emerald-400" : "bg-amber-500/10 text-amber-400"}`}>{d.status === "completed" ? "เสร็จ" : "แบบร่าง"}</span>
-            </div>
-          ))}
+      {savedDocs.length > 0 && (
+        <div className="rounded-2xl border border-white/[0.07] overflow-hidden" style={{ background: "var(--bg-card)" }}>
+          <div className="px-5 py-3.5 border-b border-white/[0.06] flex items-center justify-between">
+            <h2 className="text-sm font-semibold text-white">เอกสารที่บันทึกไว้</h2>
+            <span className="text-[10px]" style={{ color: "var(--text-muted)" }}>{savedDocs.length} รายการ</span>
+          </div>
+          <div className="divide-y divide-white/[0.04]">
+            {savedDocs.map((d) => (
+              <div key={d.id} className="px-5 py-3 flex items-center gap-3 hover:bg-white/[0.02] transition">
+                <div className={`w-9 h-9 rounded-xl bg-gradient-to-br ${TEMPLATES.find((t) => t.id === d.template_type)?.gradient || "from-blue-500 to-indigo-500"} flex items-center justify-center text-sm shadow-lg`}>{TEMPLATES.find((t) => t.id === d.template_type)?.icon || "📄"}</div>
+                <div className="flex-1 min-w-0"><p className="text-sm font-medium text-white truncate">{d.title}</p><p className="text-[10px]" style={{ color: "var(--text-muted)" }}>{TEMPLATES.find((t) => t.id === d.template_type)?.name} · {new Date(d.updated_at).toLocaleDateString("th-TH")}</p></div>
+                <span className={`text-[10px] px-2.5 py-1 rounded-full border ${d.status === "completed" ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" : "bg-amber-500/10 text-amber-400 border-amber-500/20"}`}>{d.status === "completed" ? "เสร็จ" : "แบบร่าง"}</span>
+              </div>
+            ))}
+          </div>
         </div>
-      </>)}
+      )}
     </div>
   );
 
   // === STEP 2: INFO ===
   if (step === "info") return (
-    <div className="animate-fade-in max-w-lg mx-auto">
+    <div className="animate-fade-in max-w-2xl mx-auto">
       <button onClick={() => setStep("select")} className="text-xs text-emerald-400 hover:text-emerald-300 mb-4 flex items-center gap-1"><svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>เลือกเทมเพลตอื่น</button>
-      <div className="rounded-2xl border border-white/[0.07] p-6" style={{ background: "var(--bg-card)" }}>
-        <div className="flex items-center gap-3 mb-5">
-          <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${template.gradient} flex items-center justify-center text-xl shadow-lg`}>{template.icon}</div>
-          <div><h2 className="text-base font-semibold text-white">{template.name}</h2><p className="text-xs" style={{ color: "var(--text-muted)" }}>{template.desc}</p></div>
-        </div>
-        <div className="space-y-3">
-          <div><label className="block text-xs font-medium text-white mb-1">ชื่อเอกสาร / เรื่อง *</label><input value={info.title} onChange={(e) => setInfo({ ...info, title: e.target.value })} placeholder="เช่น การพัฒนาทักษะการอ่าน..." className={inputClass} /></div>
-          <div className="grid grid-cols-2 gap-3">
-            <div><label className="block text-xs font-medium text-white mb-1">ผู้เขียน</label><input value={info.teacherName} onChange={(e) => setInfo({ ...info, teacherName: e.target.value })} className={inputClass} /></div>
-            <div><label className="block text-xs font-medium text-white mb-1">โรงเรียน/สังกัด</label><input value={info.schoolName} onChange={(e) => setInfo({ ...info, schoolName: e.target.value })} className={inputClass} /></div>
-          </div>
-          <div className="grid grid-cols-3 gap-3">
-            <div><label className="block text-xs font-medium text-white mb-1">วิชา/กลุ่มสาระ</label><input value={info.subjectGroup} onChange={(e) => setInfo({ ...info, subjectGroup: e.target.value })} className={inputClass} /></div>
-            <div><label className="block text-xs font-medium text-white mb-1">ระดับชั้น</label><input value={info.gradeLevel} onChange={(e) => setInfo({ ...info, gradeLevel: e.target.value })} className={inputClass} /></div>
-            <div><label className="block text-xs font-medium text-white mb-1">ปีการศึกษา</label><input value={info.academicYear} onChange={(e) => setInfo({ ...info, academicYear: e.target.value })} className={inputClass} /></div>
-          </div>
-          {/* Cover image */}
-          <div>
-            <label className="block text-xs font-medium text-white mb-1">ภาพปก</label>
-            <div className="flex items-center gap-3">
-              {coverImage && <img src={coverImage} alt="" className="w-14 h-20 rounded-lg object-cover border border-white/[0.07]" />}
-              <div className="flex flex-col gap-1.5">
-                <input ref={coverRef} type="file" accept="image/*" onChange={handleCover} className="text-xs file:mr-2 file:py-1 file:px-2 file:rounded-lg file:border-0 file:text-xs file:font-medium file:bg-pink-500/10 file:text-pink-400" style={{ color: "var(--text-muted)" }} />
-                {gemLinks.length > 0 && (
-                  <div className="flex flex-wrap gap-1.5">
-                    {gemLinks.slice(0, 3).map((g) => (
-                      <a key={g.id} href={g.url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-[10px] text-purple-400 hover:text-purple-300 px-2 py-0.5 rounded-full bg-purple-500/5 border border-purple-500/10 hover:bg-purple-500/10 transition">
-                        <svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12" /></svg>
-                        {g.title}
-                      </a>
-                    ))}
-                  </div>
-                )}
-              </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+        {/* Left — Cover preview */}
+        <div className="lg:col-span-2">
+          <div className="sticky top-20">
+            <div className="aspect-[3/4] rounded-2xl overflow-hidden border-2 border-white/[0.1] shadow-[0_20px_60px_rgba(0,0,0,0.5)]" style={{ background: "linear-gradient(135deg, var(--bg-card), var(--bg-secondary))" }}>
+              {coverImage ? (
+                <img src={coverImage} alt="" className="w-full h-full object-cover" />
+              ) : (
+                <div className="w-full h-full flex flex-col items-center justify-center p-6 text-center">
+                  <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${template.gradient} flex items-center justify-center text-3xl mb-4 shadow-xl`}>{template.icon}</div>
+                  <p className="text-sm font-bold text-white">{info.title || "ชื่อเอกสาร"}</p>
+                  <p className="text-[10px] mt-2" style={{ color: "var(--text-muted)" }}>{info.teacherName || "ผู้เขียน"}</p>
+                  {info.schoolName && <p className="text-[10px]" style={{ color: "var(--text-muted)" }}>{info.schoolName}</p>}
+                </div>
+              )}
+            </div>
+            {/* Cover upload */}
+            <div className="mt-3 space-y-2">
+              <input ref={coverRef} type="file" accept="image/*" onChange={handleCover} className="w-full text-xs file:mr-2 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-medium file:bg-pink-500/10 file:text-pink-400 hover:file:bg-pink-500/20" style={{ color: "var(--text-muted)" }} />
+              {coverImage && <button onClick={() => setCoverImage(null)} className="text-[10px] text-red-400 hover:underline">ลบภาพปก</button>}
+              {gemLinks.length > 0 && (
+                <div className="flex flex-wrap gap-1.5">
+                  {gemLinks.slice(0, 4).map((g) => (
+                    <a key={g.id} href={g.url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-[10px] text-purple-400 hover:text-purple-300 px-2 py-1 rounded-lg bg-purple-500/5 border border-purple-500/10 hover:bg-purple-500/10 transition">
+                      <svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12" /></svg>
+                      {g.title}
+                    </a>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         </div>
-        <button onClick={() => { if (!info.title.trim()) { toast("กรุณาระบุชื่อ", "error"); return; } setStep("edit"); }} className="w-full mt-5 h-12 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-400 text-white font-medium hover:brightness-110 active:scale-[0.98] transition-all">เริ่มเขียน →</button>
+
+        {/* Right — Form */}
+        <div className="lg:col-span-3">
+          <div className="rounded-2xl border border-white/[0.07] p-6" style={{ background: "var(--bg-card)" }}>
+            <div className="flex items-center gap-3 mb-6">
+              <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${template.gradient} flex items-center justify-center text-xl shadow-lg`}>{template.icon}</div>
+              <div><h2 className="text-base font-bold text-white">{template.name}</h2><p className="text-xs" style={{ color: "var(--text-muted)" }}>{template.sections.length} ส่วน · {template.desc}</p></div>
+            </div>
+            <div className="space-y-4">
+              <div><label className="block text-xs font-medium text-white mb-1.5">ชื่อเอกสาร / เรื่อง *</label><input value={info.title} onChange={(e) => setInfo({ ...info, title: e.target.value })} placeholder="เช่น การพัฒนาทักษะการอ่านภาษาไทย..." className={inputClass} autoFocus /></div>
+              <div className="grid grid-cols-2 gap-3">
+                <div><label className="block text-xs font-medium text-white mb-1.5">ผู้เขียน</label><input value={info.teacherName} onChange={(e) => setInfo({ ...info, teacherName: e.target.value })} className={inputClass} /></div>
+                <div><label className="block text-xs font-medium text-white mb-1.5">โรงเรียน/สังกัด</label><input value={info.schoolName} onChange={(e) => setInfo({ ...info, schoolName: e.target.value })} placeholder="ชื่อโรงเรียน" className={inputClass} /></div>
+              </div>
+              <div className="grid grid-cols-3 gap-3">
+                <div><label className="block text-xs font-medium text-white mb-1.5">วิชา/กลุ่มสาระ</label><input value={info.subjectGroup} onChange={(e) => setInfo({ ...info, subjectGroup: e.target.value })} placeholder="เช่น วิทยาศาสตร์" className={inputClass} /></div>
+                <div><label className="block text-xs font-medium text-white mb-1.5">ระดับชั้น</label><input value={info.gradeLevel} onChange={(e) => setInfo({ ...info, gradeLevel: e.target.value })} placeholder="เช่น ป.3" className={inputClass} /></div>
+                <div><label className="block text-xs font-medium text-white mb-1.5">ปีการศึกษา</label><input value={info.academicYear} onChange={(e) => setInfo({ ...info, academicYear: e.target.value })} className={inputClass} /></div>
+              </div>
+            </div>
+
+            {/* Sections preview */}
+            <div className="mt-6 pt-5 border-t border-white/[0.06]">
+              <p className="text-xs font-medium text-white mb-3">โครงสร้างเอกสาร ({template.sections.length} ส่วน)</p>
+              <div className="flex flex-wrap gap-1.5">
+                {template.sections.map((sec, i) => (
+                  <span key={sec} className="text-[9px] px-2 py-1 rounded-lg bg-white/5 border border-white/[0.05]" style={{ color: "var(--text-muted)" }}>{i + 1}. {sec}</span>
+                ))}
+              </div>
+            </div>
+
+            <button onClick={() => { if (!info.title.trim()) { toast("กรุณาระบุชื่อเอกสาร", "error"); return; } setStep("edit"); }} className="w-full mt-6 h-12 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-400 text-white font-medium shadow-lg shadow-emerald-500/20 hover:shadow-emerald-500/40 hover:brightness-110 active:scale-[0.98] transition-all">
+              เริ่มเขียน →
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   );
