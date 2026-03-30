@@ -162,8 +162,12 @@ export default async function HomePage() {
 
       {/* ─── Footer ─── */}
       <footer className="border-t py-8" style={{ borderColor: "var(--border)" }}>
-        <div className="max-w-6xl mx-auto px-4 text-center text-xs" style={{ color: "var(--text-muted)" }}>
-          © 2026 KruCraft — แพลตฟอร์มเรียนออนไลน์สำหรับครูไทย
+        <div className="max-w-6xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs" style={{ color: "var(--text-muted)" }}>
+          <span>© 2026 KruCraft — แพลตฟอร์มเรียนออนไลน์สำหรับครูไทย</span>
+          <div className="flex items-center gap-4">
+            <Link href="/privacy" className="hover:text-white transition">นโยบายความเป็นส่วนตัว</Link>
+            <Link href="/refund-policy" className="hover:text-white transition">นโยบายการคืนเงิน</Link>
+          </div>
         </div>
       </footer>
     </div>
