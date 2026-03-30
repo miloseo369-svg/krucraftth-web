@@ -20,17 +20,22 @@ export default async function InstructorPage() {
 
   const courseIds = courses?.map((c) => c.id) ?? [];
   let totalEnrollments = 0;
+  let totalRevenue = 0;
   if (courseIds.length > 0) {
-    const { count } = await supabase.from("enrollments").select("*", { count: "exact", head: true }).in("course_id", courseIds);
+    const [{ count }, { data: slips }] = await Promise.all([
+      supabase.from("enrollments").select("*", { count: "exact", head: true }).in("course_id", courseIds),
+      supabase.from("payment_slips").select("amount").eq("item_type", "course").eq("status", "approved").in("item_id", courseIds),
+    ]);
     totalEnrollments = count ?? 0;
+    totalRevenue = slips?.reduce((sum, s) => sum + (s.amount || 0), 0) ?? 0;
   }
 
   const totalLessons = courses?.reduce((acc, c) => acc + (c.modules?.reduce((a: number, m: { lessons: unknown[] | null }) => a + (m.lessons?.length ?? 0), 0) ?? 0), 0) ?? 0;
 
   const stats = [
-    { label: "คอร์สของฉัน", value: courses?.length ?? 0, icon: "M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253", color: "text-emerald-400", bg: "bg-emerald-500/10", border: "border-emerald-500/20" },
-    { label: "บทเรียนทั้งหมด", value: totalLessons, icon: "M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z M21 12a9 9 0 11-18 0 9 9 0 0118 0z", color: "text-blue-400", bg: "bg-blue-500/10", border: "border-blue-500/20" },
-    { label: "นักเรียนลงทะเบียน", value: totalEnrollments, icon: "M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z", color: "text-purple-400", bg: "bg-purple-500/10", border: "border-purple-500/20" },
+    { label: "คอร์สของฉัน", value: String(courses?.length ?? 0), icon: "M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253", color: "text-emerald-400", bg: "bg-emerald-500/10", border: "border-emerald-500/20" },
+    { label: "นักเรียน", value: String(totalEnrollments), icon: "M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z", color: "text-purple-400", bg: "bg-purple-500/10", border: "border-purple-500/20" },
+    { label: "รายได้ทั้งหมด", value: `฿${totalRevenue.toLocaleString()}`, icon: "M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z", color: "text-amber-400", bg: "bg-amber-500/10", border: "border-amber-500/20" },
   ];
 
   return (
@@ -74,7 +79,7 @@ export default async function InstructorPage() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-xs uppercase tracking-wider" style={{ color: "var(--text-muted)" }}>{s.label}</p>
-                  <p className="text-3xl font-semibold text-white mt-1">{s.value}</p>
+                  <p className={`text-3xl font-semibold mt-1 ${s.color}`}>{s.value}</p>
                 </div>
                 <div className={`w-12 h-12 rounded-xl ${s.bg} flex items-center justify-center`}>
                   <svg className={`w-6 h-6 ${s.color}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">

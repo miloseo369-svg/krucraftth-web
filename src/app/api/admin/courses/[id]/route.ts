@@ -31,6 +31,7 @@ export async function PATCH(
   if (body.description !== undefined)
     updates.description = body.description?.trim() || null;
   if (body.price !== undefined) updates.price = body.price;
+  if (body.credit_price !== undefined) updates.credit_price = body.credit_price;
   if (body.instructor_id !== undefined)
     updates.instructor_id = body.instructor_id || null;
   if (body.is_published !== undefined) updates.is_published = body.is_published;

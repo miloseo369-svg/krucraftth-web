@@ -171,6 +171,26 @@ export async function PATCH(request: NextRequest) {
   const label = action === "approve" ? "อนุมัติ" : "ปฏิเสธ";
   await logActivity(user.id, `${label}_slip`, `${label}สลิป #${slipId} ของ user ${slip.user_id} (${slip.item_type}: ฿${slip.amount})`);
 
+  // Notify user
+  const itemLabel = slip.item_type === "course" ? "คอร์ส" : slip.item_type === "credits" ? "เครดิต" : "สินค้า";
+  if (action === "approve") {
+    await serviceClient.from("notifications").insert({
+      user_id: slip.user_id,
+      title: "ชำระเงินสำเร็จ",
+      message: `การชำระเงิน${itemLabel} ฿${slip.amount} ได้รับการอนุมัติแล้ว`,
+      type: "success",
+      href: slip.item_type === "credits" ? "/credits" : slip.item_type === "course" ? `/courses/${slip.item_id}` : `/orders`,
+    });
+  } else {
+    await serviceClient.from("notifications").insert({
+      user_id: slip.user_id,
+      title: "สลิปถูกปฏิเสธ",
+      message: `การชำระเงิน${itemLabel} ฿${slip.amount} ถูกปฏิเสธ${note ? `: ${note}` : ""}`,
+      type: "error",
+      href: slip.item_type === "course" ? `/courses/${slip.item_id}` : "/orders",
+    });
+  }
+
   return NextResponse.json({ success: true });
 }
 

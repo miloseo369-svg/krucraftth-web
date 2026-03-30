@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import EnrollButton from "@/components/EnrollButton";
 import AnnouncementBar from "@/components/AnnouncementBar";
 import ReviewStars from "@/components/ReviewStars";
+import CourseReviews from "@/components/CourseReviews";
 import TrustBadges from "@/components/TrustBadges";
 import FAQAccordion from "@/components/FAQAccordion";
 import CourseSalesClient from "./CourseSalesClient";
@@ -34,6 +35,8 @@ export default async function CourseDetailPage({ params }: { params: Promise<{ c
     const { data: enrollment } = await supabase.from("enrollments").select("id").eq("user_id", user.id).eq("course_id", courseId).maybeSingle();
     isEnrolled = !!enrollment;
   }
+
+  const { data: reviews } = await supabase.from("reviews").select("*, user:profiles(full_name, avatar_url)").eq("course_id", courseId).order("created_at", { ascending: false });
 
   const totalLessons = modules?.reduce((acc, m) => acc + (m.lessons?.length ?? 0), 0) ?? 0;
   const saleActive = course.sale_ends_at && new Date(course.sale_ends_at) > new Date();
@@ -223,28 +226,7 @@ export default async function CourseDetailPage({ params }: { params: Promise<{ c
 
         {/* Reviews */}
         <div className="mt-16">
-          <h2 className="text-xl font-bold text-white mb-6">รีวิวจากผู้เรียน</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            {[
-              { name: "ครูแอน", role: "คุณครูประถมศึกษา", text: "คอร์สคุณภาพดีมาก อธิบายเข้าใจง่าย นำไปใช้งานได้จริง" },
-              { name: "ครูเบส", role: "อาจารย์มัธยม", text: "เนื้อหากระชับ ตรงประเด็น ได้ใบเซอร์ไปอ้างอิงด้วย ดีมากครับ" },
-              { name: "คุณมิว", role: "นักศึกษา", text: "ราคาคุ้มค่า เรียนซ้ำได้ตลอดชีพ แนะนำเลยค่ะ" },
-            ].map((r) => (
-              <div key={r.name} className="rounded-xl p-4 border border-white/[0.07]" style={{ background: "var(--bg-card)" }}>
-                <div className="flex gap-0.5 mb-2">
-                  {[1, 2, 3, 4, 5].map((s) => <svg key={s} className="w-3.5 h-3.5 text-amber-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" /></svg>)}
-                </div>
-                <p className="text-sm italic line-clamp-3" style={{ color: "var(--text-secondary)" }}>&ldquo;{r.text}&rdquo;</p>
-                <div className="flex items-center gap-2 mt-3">
-                  <div className="w-7 h-7 rounded-full bg-gradient-to-br from-emerald-500 to-teal-400 flex items-center justify-center text-black text-xs font-bold">{r.name[0]}</div>
-                  <div>
-                    <p className="text-xs font-medium text-white">{r.name}</p>
-                    <p className="text-xs" style={{ color: "var(--text-muted)" }}>{r.role}</p>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
+          <CourseReviews courseId={courseId} reviews={reviews ?? []} isEnrolled={isEnrolled} userId={user?.id} />
         </div>
 
         {/* FAQ */}

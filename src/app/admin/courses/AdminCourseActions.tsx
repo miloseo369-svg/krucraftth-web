@@ -32,14 +32,15 @@ export default function AdminCourseActions({ courses, instructors }: { courses: 
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState(0);
+  const [creditPrice, setCreditPrice] = useState(0);
   const [instructorId, setInstructorId] = useState("");
   const [isPublished, setIsPublished] = useState(false);
   const [thumbnailUrl, setThumbnailUrl] = useState("");
   const [uploading, setUploading] = useState(false);
 
-  const resetForm = () => { setTitle(""); setDescription(""); setPrice(0); setInstructorId(""); setIsPublished(false); setThumbnailUrl(""); setShowForm(false); setEditingId(null); };
+  const resetForm = () => { setTitle(""); setDescription(""); setPrice(0); setCreditPrice(0); setInstructorId(""); setIsPublished(false); setThumbnailUrl(""); setShowForm(false); setEditingId(null); };
 
-  const openEdit = (c: Course) => { setTitle(c.title); setDescription(c.description ?? ""); setPrice(c.price); setInstructorId(c.instructor_id ?? ""); setIsPublished(c.is_published); setThumbnailUrl(c.thumbnail_url ?? ""); setEditingId(c.id); setShowForm(true); };
+  const openEdit = (c: Course) => { setTitle(c.title); setDescription(c.description ?? ""); setPrice(c.price); setCreditPrice((c as unknown as { credit_price?: number }).credit_price ?? 0); setInstructorId(c.instructor_id ?? ""); setIsPublished(c.is_published); setThumbnailUrl(c.thumbnail_url ?? ""); setEditingId(c.id); setShowForm(true); };
 
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -56,7 +57,7 @@ export default function AdminCourseActions({ courses, instructors }: { courses: 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    const body = { title, description, price, instructor_id: instructorId || null, is_published: isPublished, thumbnail_url: thumbnailUrl || null };
+    const body = { title, description, price, credit_price: creditPrice, instructor_id: instructorId || null, is_published: isPublished, thumbnail_url: thumbnailUrl || null };
     const res = editingId
       ? await fetch(`/api/admin/courses/${editingId}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) })
       : await fetch("/api/admin/courses", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
@@ -109,10 +110,14 @@ export default function AdminCourseActions({ courses, instructors }: { courses: 
               <input type="file" accept="image/*" onChange={handleUpload} disabled={uploading} className="w-full text-sm file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-emerald-500/10 file:text-emerald-400 hover:file:bg-emerald-500/20" style={{ color: "var(--text-muted)" }} />
               {uploading && <p className="text-xs mt-1" style={{ color: "var(--text-muted)" }}>กำลังอัพโหลด...</p>}
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-3 gap-4">
               <div>
                 <label className="block text-xs font-medium text-white mb-1.5">ราคา (บาท)</label>
                 <input type="number" min="0" value={price} onChange={(e) => setPrice(Number(e.target.value))} className={inputClass} />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-white mb-1.5">ราคาเครดิต</label>
+                <input type="number" min="0" value={creditPrice} onChange={(e) => setCreditPrice(Number(e.target.value))} placeholder="0 = ไม่รับเครดิต" className={inputClass} />
               </div>
               <div>
                 <label className="block text-xs font-medium text-white mb-1.5">ผู้สอน</label>

@@ -19,7 +19,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
   const body = await request.json();
-  const { title, description, price, instructor_id, is_published, thumbnail_url } = body;
+  const { title, description, price, credit_price, instructor_id, is_published, thumbnail_url } = body;
 
   if (!title?.trim()) {
     return NextResponse.json(
@@ -34,6 +34,7 @@ export async function POST(request: NextRequest) {
       title: title.trim(),
       description: description?.trim() || null,
       price: price ?? 0,
+      credit_price: credit_price ?? 0,
       instructor_id: instructor_id || null,
       is_published: is_published ?? false,
       thumbnail_url: thumbnail_url || null,
