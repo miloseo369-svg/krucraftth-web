@@ -2,7 +2,6 @@ import { createClient } from "@/lib/supabase/server";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import type { Metadata } from "next";
-import AnnouncementBar from "@/components/AnnouncementBar";
 import ReviewStars from "@/components/ReviewStars";
 import TrustBadges from "@/components/TrustBadges";
 import FAQAccordion from "@/components/FAQAccordion";
@@ -49,12 +48,6 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
 
   return (
     <div className="min-h-screen" style={{ background: "var(--bg-primary)" }}>
-      {/* Announcement */}
-      <AnnouncementBar
-        show={!!saleActive && discount > 0}
-        text={`🔥 ราคาพิเศษ! ลด ${discount}% · โปรโมชันมีเวลาจำกัด`}
-      />
-
       {/* Nav */}
       <nav className="sticky top-0 z-50 backdrop-blur-xl border-b" style={{ background: "var(--glass-bg)", borderColor: "var(--glass-border)" }}>
         <div className="max-w-6xl mx-auto px-4 sm:px-6 flex items-center h-14">

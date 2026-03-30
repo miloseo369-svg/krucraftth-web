@@ -4,6 +4,7 @@ import "./globals.css";
 import { cn } from "@/lib/utils";
 import { ToastProvider } from "@/components/Toast";
 import { ConfirmProvider } from "@/components/ConfirmModal";
+import GlobalAnnouncementBar from "@/components/AnnouncementBar";
 
 const sora = Sora({
   variable: "--font-sora",
@@ -57,6 +58,7 @@ export default function RootLayout({
       <body className="font-[family-name:var(--font-sarabun)] min-h-full flex flex-col text-white" style={{ background: "var(--bg-primary)", lineHeight: "1.6" }}>
         <ToastProvider>
           <ConfirmProvider>
+            <GlobalAnnouncementBar />
             {children}
           </ConfirmProvider>
         </ToastProvider>

@@ -2,7 +2,6 @@ import { createClient } from "@/lib/supabase/server";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import EnrollButton from "@/components/EnrollButton";
-import AnnouncementBar from "@/components/AnnouncementBar";
 import ReviewStars from "@/components/ReviewStars";
 import CourseReviews from "@/components/CourseReviews";
 import TrustBadges from "@/components/TrustBadges";
@@ -56,8 +55,6 @@ export default async function CourseDetailPage({ params }: { params: Promise<{ c
   return (
     <div className="min-h-screen" style={{ background: "var(--bg-primary)" }}>
       {/* Announcement */}
-      <AnnouncementBar show={!!saleActive && discount > 0} text={`🔥 ราคาพิเศษ! ลด ${discount}% · โปรโมชันมีเวลาจำกัด`} />
-
       {/* Nav */}
       <nav className="sticky top-0 z-50 backdrop-blur-xl border-b" style={{ background: "var(--glass-bg)", borderColor: "var(--glass-border)" }}>
         <div className="max-w-6xl mx-auto px-4 sm:px-6 flex items-center h-14">
