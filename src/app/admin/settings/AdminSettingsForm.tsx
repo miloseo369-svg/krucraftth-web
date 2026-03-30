@@ -83,26 +83,83 @@ export default function AdminSettingsForm({ initialSettings }: { initialSettings
         </div>
       </div>
 
-      {/* API Keys */}
+      {/* AI Provider */}
       <div className="rounded-2xl border border-white/[0.07] p-6" style={{ background: "var(--bg-card)" }}>
         <div className="flex items-center gap-3 mb-5">
           <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center">
-            <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" /></svg>
+            <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z" /></svg>
           </div>
           <div>
-            <h2 className="text-base font-semibold text-white">API Keys</h2>
-            <p className="text-xs" style={{ color: "var(--text-muted)" }}>สำหรับเชื่อมต่อบริการภายนอก</p>
+            <h2 className="text-base font-semibold text-white">AI Provider</h2>
+            <p className="text-xs" style={{ color: "var(--text-muted)" }}>เลือก AI Model สำหรับ AI Tools</p>
           </div>
         </div>
         <div className="space-y-4">
+          {/* Provider selector */}
           <div>
-            <label className="block text-xs font-medium text-white mb-1.5">Claude API Key (สำหรับ AI Tools)</label>
+            <label className="block text-xs font-medium text-white mb-2">เลือก AI Provider</label>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+              {[
+                { id: "claude", name: "Claude", desc: "Anthropic", models: "Sonnet 4, Opus 4", gradient: "from-orange-500 to-amber-500", icon: "M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z" },
+                { id: "openai", name: "GPT", desc: "OpenAI", models: "GPT-4o, o3", gradient: "from-emerald-500 to-teal-500", icon: "M12 2a10 10 0 110 20 10 10 0 010-20zm0 4a1 1 0 00-1 1v4.586l-2.707 2.707a1 1 0 101.414 1.414l3-3A1 1 0 0013 12V7a1 1 0 00-1-1z" },
+                { id: "gemini", name: "Gemini", desc: "Google", models: "Gemini 2.5 Pro/Flash", gradient: "from-blue-500 to-indigo-500", icon: "M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" },
+              ].map((p) => {
+                const active = (settings.ai_provider || "claude") === p.id;
+                return (
+                  <button key={p.id} type="button" onClick={() => update("ai_provider", p.id)} className={`rounded-xl p-3 text-left transition-all ${active ? "border-2 border-emerald-500/50 bg-emerald-500/5" : "border border-white/[0.07] hover:border-white/[0.15] hover:bg-white/[0.02]"}`}>
+                    <div className="flex items-center gap-2 mb-1.5">
+                      <div className={`w-7 h-7 rounded-lg bg-gradient-to-br ${p.gradient} flex items-center justify-center`}>
+                        <svg className="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d={p.icon} /></svg>
+                      </div>
+                      <span className="text-sm font-semibold text-white">{p.name}</span>
+                      {active && <span className="ml-auto w-2 h-2 rounded-full bg-emerald-400" />}
+                    </div>
+                    <p className="text-[10px]" style={{ color: "var(--text-muted)" }}>{p.desc} · {p.models}</p>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Model selector */}
+          <div>
+            <label className="block text-xs font-medium text-white mb-1.5">เลือก Model</label>
+            <select value={settings.ai_model || ""} onChange={(e) => update("ai_model", e.target.value)} className={inputClass}>
+              {(settings.ai_provider || "claude") === "claude" && (
+                <>
+                  <option value="claude-sonnet-4-20250514">Claude Sonnet 4 (แนะนำ)</option>
+                  <option value="claude-opus-4-20250514">Claude Opus 4 (ฉลาดสุด)</option>
+                  <option value="claude-haiku-4-20250514">Claude Haiku 4 (เร็วสุด)</option>
+                </>
+              )}
+              {(settings.ai_provider || "claude") === "openai" && (
+                <>
+                  <option value="gpt-4o">GPT-4o (แนะนำ)</option>
+                  <option value="gpt-4o-mini">GPT-4o Mini (ประหยัด)</option>
+                  <option value="o3">o3 (ฉลาดสุด)</option>
+                  <option value="o4-mini">o4-mini (เร็วสุด)</option>
+                </>
+              )}
+              {(settings.ai_provider || "claude") === "gemini" && (
+                <>
+                  <option value="gemini-2.5-pro">Gemini 2.5 Pro (แนะนำ)</option>
+                  <option value="gemini-2.5-flash">Gemini 2.5 Flash (เร็วสุด)</option>
+                </>
+              )}
+            </select>
+          </div>
+
+          {/* API Key */}
+          <div>
+            <label className="block text-xs font-medium text-white mb-1.5">
+              {(settings.ai_provider || "claude") === "claude" ? "Claude API Key" : (settings.ai_provider || "claude") === "openai" ? "OpenAI API Key" : "Gemini API Key"}
+            </label>
             <div className="flex gap-2">
               <input
                 type={showApiKey ? "text" : "password"}
-                value={settings.claude_api_key || ""}
-                onChange={(e) => update("claude_api_key", e.target.value)}
-                placeholder="sk-ant-api03-..."
+                value={settings.ai_api_key || settings.claude_api_key || ""}
+                onChange={(e) => { update("ai_api_key", e.target.value); update("claude_api_key", e.target.value); }}
+                placeholder={(settings.ai_provider || "claude") === "claude" ? "sk-ant-api03-..." : (settings.ai_provider || "claude") === "openai" ? "sk-..." : "AIza..."}
                 className={`${inputClass} font-mono text-xs flex-1`}
               />
               <button onClick={() => setShowApiKey(!showApiKey)} className="px-3 py-2 rounded-xl border border-white/[0.07] text-xs hover:bg-white/5 transition shrink-0" style={{ color: "var(--text-secondary)" }}>
@@ -110,7 +167,9 @@ export default function AdminSettingsForm({ initialSettings }: { initialSettings
               </button>
             </div>
             <p className="text-[10px] mt-1.5" style={{ color: "var(--text-muted)" }}>
-              รับ API Key ที่ <a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener noreferrer" className="text-purple-400 hover:text-purple-300 underline">console.anthropic.com</a> · ใช้สำหรับ AI Tools ในหน้า Admin
+              {(settings.ai_provider || "claude") === "claude" && <>รับ API Key ที่ <a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener noreferrer" className="text-purple-400 hover:text-purple-300 underline">console.anthropic.com</a></>}
+              {(settings.ai_provider || "claude") === "openai" && <>รับ API Key ที่ <a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener noreferrer" className="text-emerald-400 hover:text-emerald-300 underline">platform.openai.com</a></>}
+              {(settings.ai_provider || "claude") === "gemini" && <>รับ API Key ที่ <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 underline">aistudio.google.com</a></>}
             </p>
           </div>
           <div>
