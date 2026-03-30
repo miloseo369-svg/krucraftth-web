@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { askClaude, parseClaudeJSON } from "@/lib/claude";
 import { spendCredits } from "@/lib/credits";
+import { checkRateLimit } from "@/lib/rate-limit";
 
 async function requireInstructorOrAdmin() {
   const supabase = await createClient();
@@ -23,6 +24,12 @@ export async function POST(request: NextRequest) {
   const adminOnlyTools = ["business-analysis", "competitor-analysis", "risk-analysis"];
   if (adminOnlyTools.includes(tool) && auth.role !== "admin") {
     return NextResponse.json({ error: "เฉพาะ Admin เท่านั้น" }, { status: 403 });
+  }
+
+  // Rate limiting: 10 requests per minute per user
+  const rateLimit = checkRateLimit(`ai:${auth.user.id}`, 10, 60_000);
+  if (!rateLimit.allowed) {
+    return NextResponse.json({ error: `คำขอมากเกินไป กรุณารอ ${rateLimit.resetIn} วินาที` }, { status: 429 });
   }
 
   // Determine credit action

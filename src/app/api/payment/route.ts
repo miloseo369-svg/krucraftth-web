@@ -1,12 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import crypto from "crypto";
+import { checkRateLimit } from "@/lib/rate-limit";
 
 /** POST /api/payment — ส่งสลิปชำระเงิน */
 export async function POST(request: NextRequest) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  // Rate limit: 5 payment submissions per minute
+  const rl = checkRateLimit(`payment:${user.id}`, 5, 60_000);
+  if (!rl.allowed) return NextResponse.json({ error: `กรุณารอ ${rl.resetIn} วินาที` }, { status: 429 });
 
   const formData = await request.formData();
   const file = formData.get("file") as File | null;
