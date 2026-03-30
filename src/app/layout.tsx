@@ -20,6 +20,7 @@ const kanit = Kanit({
 export const metadata: Metadata = {
   title: "KruCraft LMS — ระบบเรียนออนไลน์",
   description: "ระบบจัดการเรียนรู้ออนไลน์ด้วยวิดีโอ",
+  viewport: { width: "device-width", initialScale: 1, maximumScale: 1 },
 };
 
 export default function RootLayout({

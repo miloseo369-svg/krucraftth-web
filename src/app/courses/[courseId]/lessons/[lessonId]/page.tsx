@@ -2,6 +2,8 @@ import { createClient } from "@/lib/supabase/server";
 import { notFound, redirect } from "next/navigation";
 import Link from "next/link";
 import VideoPlayer from "@/components/VideoPlayer";
+import LessonDiscussion from "@/components/LessonDiscussion";
+import QuizPlayer from "@/components/QuizPlayer";
 
 export default async function LessonPage({ params }: { params: Promise<{ courseId: string; lessonId: string }> }) {
   const { courseId, lessonId } = await params;
@@ -16,6 +18,9 @@ export default async function LessonPage({ params }: { params: Promise<{ courseI
     const { data: enrollment } = await supabase.from("enrollments").select("id").eq("user_id", user.id).eq("course_id", courseId).maybeSingle();
     if (!enrollment) redirect(`/courses/${courseId}`);
   }
+
+  // Quiz for this lesson
+  const { data: quiz } = await supabase.from("quizzes").select("*, quiz_questions(*)").eq("lesson_id", lessonId).maybeSingle();
 
   const [{ data: modules }, { data: course }] = await Promise.all([
     supabase.from("modules").select("*, lessons(*)").eq("course_id", courseId).order("sequence"),
@@ -88,6 +93,20 @@ export default async function LessonPage({ params }: { params: Promise<{ courseI
                 <Link href={`/courses/${courseId}`} className="text-sm text-emerald-400 hover:text-emerald-300 transition font-medium">กลับหน้าคอร์ส ✓</Link>
               )}
             </div>
+
+            {/* Quiz */}
+            {quiz && quiz.quiz_questions && quiz.quiz_questions.length > 0 && (
+              <div className="mt-6 pt-5 border-t" style={{ borderColor: "var(--border)" }}>
+                <QuizPlayer quizId={quiz.id} title={quiz.title} passScore={quiz.pass_score} questions={quiz.quiz_questions.sort((a: { order_num: number }, b: { order_num: number }) => a.order_num - b.order_num)} />
+              </div>
+            )}
+
+            {/* Discussion */}
+            {user && (
+              <div className="mt-6 pt-5 border-t" style={{ borderColor: "var(--border)" }}>
+                <LessonDiscussion lessonId={lessonId} courseId={courseId} />
+              </div>
+            )}
           </div>
         </div>
       </div>

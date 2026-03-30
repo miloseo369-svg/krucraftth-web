@@ -7,6 +7,7 @@ import ReviewStars from "@/components/ReviewStars";
 import TrustBadges from "@/components/TrustBadges";
 import FAQAccordion from "@/components/FAQAccordion";
 import CourseSalesClient from "./CourseSalesClient";
+import WishlistButton from "@/components/WishlistButton";
 import Logo from "@/components/Logo";
 import type { Metadata } from "next";
 
@@ -106,7 +107,10 @@ export default async function CourseDetailPage({ params }: { params: Promise<{ c
           <div className="lg:col-span-7">
             <span className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-medium mb-3">🎓 คอร์สออนไลน์</span>
 
-            <h1 className="text-3xl font-bold text-white" style={{ lineHeight: "1.3" }}>{course.title}</h1>
+            <div className="flex items-start justify-between gap-3">
+              <h1 className="text-3xl font-bold text-white" style={{ lineHeight: "1.3" }}>{course.title}</h1>
+              {user && <WishlistButton courseId={courseId} />}
+            </div>
 
             <div className="mt-3">
               <ReviewStars avg={course.review_avg || 5} count={course.review_count || 0} />

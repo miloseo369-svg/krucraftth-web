@@ -63,7 +63,7 @@ export default function AdminSidebar() {
       </aside>
 
       {/* Mobile bottom nav */}
-      <div className="fixed bottom-0 left-0 right-0 z-50 lg:hidden border-t backdrop-blur-xl" style={{ background: "var(--glass-bg)", borderColor: "var(--glass-border)" }}>
+      <div className="fixed bottom-0 left-0 right-0 z-50 lg:hidden border-t backdrop-blur-xl pb-safe" style={{ background: "var(--glass-bg)", borderColor: "var(--glass-border)" }}>
         <div className="flex items-center justify-around h-14 px-2">
           {links.slice(0, 5).map((l) => {
             const active = isActive(l.href, (l as { exact?: boolean }).exact);

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { showToast } from "@/components/Toast";
 import { showConfirm } from "@/components/ConfirmModal";
 
@@ -221,6 +222,7 @@ export default function AdminLessonManager({
                         </div>
                       </div>
                       <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition">
+                        <Link href={`/instructor/quiz/${courseId}/${lesson.id}`} className="px-2 py-1 text-[10px] font-medium text-purple-400 hover:bg-purple-500/10 rounded-lg transition">Quiz</Link>
                         <button
                           onClick={() => openLessonForm(mod.id, lesson)}
                           className="p-1.5 text-gray-500 hover:text-white hover:bg-gray-700 rounded-lg transition"

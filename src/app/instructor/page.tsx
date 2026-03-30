@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import PremiumCourseCard from "@/components/PremiumCourseCard";
+import OnboardingChecklist from "@/components/OnboardingChecklist";
 import Logo from "@/components/Logo";
 
 export default async function InstructorPage() {
@@ -55,6 +56,14 @@ export default async function InstructorPage() {
           <p className="text-sm mt-1" style={{ color: "var(--text-secondary)" }}>จัดการคอร์สและติดตามผลการเรียนของนักเรียน</p>
         </div>
 
+        {/* Onboarding */}
+        <OnboardingChecklist
+          hasCourse={(courses?.length ?? 0) > 0}
+          hasVideo={courses?.some((c) => c.modules?.some((m: { lessons: unknown[] | null }) => (m.lessons?.length ?? 0) > 0)) ?? false}
+          hasPrice={courses?.some((c) => c.price > 0) ?? false}
+          hasPublished={courses?.some((c) => c.is_published) ?? false}
+        />
+
         {/* Stats */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
           {stats.map((s) => (
@@ -77,9 +86,12 @@ export default async function InstructorPage() {
         {/* My Courses */}
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-medium text-white">คอร์สของฉัน</h2>
-          {profile.role === "admin" && (
-            <Link href="/admin/courses" className="text-sm text-emerald-400 hover:text-emerald-300 transition">จัดการคอร์สทั้งหมด →</Link>
-          )}
+          <div className="flex items-center gap-3">
+            <Link href="/instructor/analytics" className="text-sm text-blue-400 hover:text-blue-300 transition">📊 Analytics</Link>
+            {profile.role === "admin" && (
+              <Link href="/admin/courses" className="text-sm text-emerald-400 hover:text-emerald-300 transition">จัดการคอร์ส →</Link>
+            )}
+          </div>
         </div>
 
         {courses && courses.length > 0 ? (

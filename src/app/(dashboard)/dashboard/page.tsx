@@ -20,8 +20,32 @@ export default async function DashboardPage() {
     return { ...e, total, done, percent: total > 0 ? Math.round((done / total) * 100) : 0 };
   }) ?? [];
 
+  const inProgress = courseProgress.filter((c) => c.percent > 0 && c.percent < 100).sort((a, b) => b.percent - a.percent);
+  const notStarted = courseProgress.filter((c) => c.percent === 0);
+  const completed = courseProgress.filter((c) => c.percent === 100);
+
+  // Streak
+  const { data: recentProgress } = await supabase.from("user_progress").select("updated_at").eq("user_id", user!.id).eq("is_completed", true).order("updated_at", { ascending: false }).limit(30);
+  let streak = 0;
+  if (recentProgress?.length) {
+    const today = new Date(); today.setHours(0, 0, 0, 0);
+    const days = new Set(recentProgress.map((p) => new Date(p.updated_at).toDateString()));
+    for (let i = 0; i < 30; i++) { const d = new Date(today); d.setDate(d.getDate() - i); if (days.has(d.toDateString())) streak++; else break; }
+  }
+
   return (
     <div className="animate-fade-in">
+      {/* Streak */}
+      {streak > 0 && (
+        <div className="flex items-center gap-3 rounded-xl bg-amber-500/10 border border-amber-500/20 px-4 py-3 mb-4">
+          <span className="text-2xl">🔥</span>
+          <div>
+            <p className="text-amber-400 font-medium text-sm">เรียนต่อเนื่อง {streak} วัน!</p>
+            <p className="text-[10px]" style={{ color: "var(--text-muted)" }}>ทำต่อไปอย่าให้หยุด</p>
+          </div>
+        </div>
+      )}
+
       {/* Stats */}
       <div className="grid grid-cols-3 gap-2 sm:gap-3 mb-6">
         {[
@@ -54,6 +78,7 @@ export default async function DashboardPage() {
             </div>
             <Link href="/courses" className="text-[10px] sm:text-xs text-emerald-400 hover:text-emerald-300">ดูทั้งหมด →</Link>
           </div>
+          {/* Tabs inside */}
           {courseProgress.length === 0 ? (
             <div className="p-10 text-center">
               <svg className="w-10 h-10 mx-auto mb-2 text-zinc-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" /></svg>
@@ -62,7 +87,8 @@ export default async function DashboardPage() {
             </div>
           ) : (
             <div className="divide-y divide-white/[0.04]">
-              {courseProgress.map((cp) => (
+              {inProgress.length > 0 && <p className="px-4 pt-3 text-[9px] uppercase tracking-wider text-emerald-400 font-medium">กำลังเรียน ({inProgress.length})</p>}
+              {[...inProgress, ...notStarted, ...completed].map((cp) => (
                 <Link key={cp.id} href={`/courses/${cp.course_id}`} className="flex items-center gap-3 px-4 sm:px-5 py-3 hover:bg-white/[0.03] transition-colors group">
                   <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl overflow-hidden shrink-0 border border-white/[0.07]">
                     {cp.course?.thumbnail_url ? (

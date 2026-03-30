@@ -113,6 +113,7 @@ export default function VideoPlayer({ lessonId, videoPath }: VideoPlayerProps) {
       ref={videoRef}
       src={videoUrl}
       controls
+      playsInline
       className="w-full h-full"
       controlsList="nodownload"
       onContextMenu={(e) => e.preventDefault()}
