@@ -123,8 +123,8 @@ export default async function HomePage() {
         </section>
       )}
 
-      {/* Mockup Showcase — 20+ Products */}
-      <section className="border-t" style={{ borderColor: "var(--border)" }}>
+      {/* Mockup Showcase — only show if enough items */}
+      {((featuredCourses?.length ?? 0) + (shopProducts?.length ?? 0)) >= 3 && <section className="border-t" style={{ borderColor: "var(--border)" }}>
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-20">
           <div className="text-center mb-10">
             <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-emerald-500/20 text-xs text-emerald-400 mb-4">
@@ -172,7 +172,7 @@ export default async function HomePage() {
             </Link>
           </div>
         </div>
-      </section>
+      </section>}
 
       {/* Big CTA — Urgency */}
       <section className="relative overflow-hidden" style={{ background: "linear-gradient(135deg, rgba(16,185,129,0.15), var(--bg-primary), rgba(20,184,166,0.1))" }}>

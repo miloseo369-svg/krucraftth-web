@@ -335,9 +335,30 @@ export default function DocCreatorClient({ userName, savedDocs, gemLinks }: Prop
               </div>
             </div>
 
-            <button onClick={() => { if (!info.title.trim()) { toast("กรุณาระบุชื่อเอกสาร", "error"); return; } setStep("edit"); }} className="w-full mt-6 h-12 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-400 text-white font-medium shadow-lg shadow-emerald-500/20 hover:shadow-emerald-500/40 hover:brightness-110 active:scale-[0.98] transition-all">
-              เริ่มเขียน →
-            </button>
+            <div className="flex gap-2 mt-6">
+              <button onClick={() => { if (!info.title.trim()) { toast("กรุณาระบุชื่อเอกสาร", "error"); return; } setStep("edit"); }} className="flex-1 h-12 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-400 text-white font-medium shadow-lg shadow-emerald-500/20 hover:brightness-110 active:scale-[0.98] transition-all">
+                เริ่มเขียนเอง →
+              </button>
+              <button onClick={async () => {
+                if (!info.title.trim()) { toast("กรุณาระบุชื่อเอกสาร", "error"); return; }
+                setStep("edit");
+                toast("AI กำลังเขียนทั้งเล่ม...", "info");
+                for (const sec of template.sections) {
+                  const prompts = AI_PROMPTS[template.id] || {};
+                  if (prompts[sec]) {
+                    try {
+                      const prompt = prompts[sec].replace(/{title}/g, info.title).replace(/{subject}/g, info.subjectGroup).replace(/{grade}/g, info.gradeLevel).replace(/{teacher}/g, info.teacherName);
+                      const res = await fetch("/api/ai", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ tool: "doc-assist", input: { prompt } }) });
+                      if (res.ok) { const data = await res.json(); updateText(sec, typeof data.result === "string" ? data.result : JSON.stringify(data.result)); }
+                    } catch { /* skip failed sections */ }
+                  }
+                }
+                toast("AI เขียนเสร็จแล้ว!", "success");
+              }} disabled={aiLoading} className="h-12 px-5 rounded-xl bg-gradient-to-r from-purple-500 to-blue-500 text-white font-medium shadow-lg shadow-purple-500/20 hover:brightness-110 active:scale-[0.98] transition-all disabled:opacity-50 flex items-center gap-2">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25" /></svg>
+                AI ทั้งเล่ม
+              </button>
+            </div>
           </div>
         </div>
       </div>

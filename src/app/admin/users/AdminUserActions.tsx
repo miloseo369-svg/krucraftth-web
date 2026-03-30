@@ -15,9 +15,9 @@ interface User {
 
 const ROLE_LABELS: Record<string, string> = { admin: "ผู้ดูแล", instructor: "ผู้สอน", student: "ผู้เรียน" };
 const ROLE_STYLES: Record<string, string> = {
-  admin: "bg-purple-500/20 text-purple-400 ring-1 ring-purple-500/30",
-  instructor: "bg-indigo-500/20 text-indigo-400 ring-1 ring-indigo-500/30",
-  student: "bg-gray-500/20 text-gray-400 ring-1 ring-gray-500/30",
+  admin: "bg-purple-500/20 text-purple-400 border border-purple-500/20",
+  instructor: "bg-emerald-500/20 text-emerald-400 border border-emerald-500/20",
+  student: "bg-zinc-500/20 text-zinc-400 border border-zinc-500/20",
 };
 
 export default function AdminUserActions({ users, currentUserId }: { users: User[]; currentUserId: string }) {
@@ -37,32 +37,32 @@ export default function AdminUserActions({ users, currentUserId }: { users: User
   };
 
   return (
-    <div className="bg-gray-900 rounded-2xl border border-gray-800 overflow-hidden">
+    <div className="rounded-2xl border border-white/[0.07] overflow-hidden" style={{ backgroundColor: "var(--bg-card)" }}>
       <table className="w-full text-left">
-        <thead className="border-b border-gray-800">
+        <thead className="border-b border-white/[0.07]">
           <tr>
-            <th className="px-6 py-4 text-xs font-medium text-gray-500 uppercase tracking-wider">ผู้ใช้</th>
-            <th className="px-6 py-4 text-xs font-medium text-gray-500 uppercase tracking-wider">บทบาท</th>
-            <th className="px-6 py-4 text-xs font-medium text-gray-500 uppercase tracking-wider">สมัครเมื่อ</th>
-            <th className="px-6 py-4 text-xs font-medium text-gray-500 uppercase tracking-wider">เปลี่ยนบทบาท</th>
+            <th className="px-6 py-4 text-xs font-medium text-[var(--text-muted)] uppercase tracking-wider">ผู้ใช้</th>
+            <th className="px-6 py-4 text-xs font-medium text-[var(--text-muted)] uppercase tracking-wider">บทบาท</th>
+            <th className="px-6 py-4 text-xs font-medium text-[var(--text-muted)] uppercase tracking-wider">สมัครเมื่อ</th>
+            <th className="px-6 py-4 text-xs font-medium text-[var(--text-muted)] uppercase tracking-wider">เปลี่ยนบทบาท</th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-gray-800/60">
+        <tbody className="divide-y divide-white/[0.04]">
           {users.map((u) => (
-            <tr key={u.id} className="hover:bg-gray-800/50 transition">
+            <tr key={u.id} className="hover:bg-white/[0.03] transition">
               <td className="px-6 py-4">
                 <div className="flex items-center gap-3">
                   {u.avatar_url ? (
                     <img src={u.avatar_url} alt="" className="w-8 h-8 rounded-full object-cover" />
                   ) : (
-                    <div className="w-8 h-8 rounded-full bg-gray-800 flex items-center justify-center text-gray-500 text-xs font-bold">
+                    <div className="w-8 h-8 rounded-full bg-white/[0.05] flex items-center justify-center text-[var(--text-muted)] text-xs font-bold">
                       {(u.full_name || "?")[0].toUpperCase()}
                     </div>
                   )}
                   <div>
                     <div className="text-sm font-medium text-white">
                       {u.full_name || "-"}
-                      {u.id === currentUserId && <span className="text-xs text-gray-500 ml-2">(คุณ)</span>}
+                      {u.id === currentUserId && <span className="text-xs text-[var(--text-muted)] ml-2">(คุณ)</span>}
                     </div>
                   </div>
                 </div>
@@ -72,18 +72,18 @@ export default function AdminUserActions({ users, currentUserId }: { users: User
                   {ROLE_LABELS[u.role] || u.role}
                 </span>
               </td>
-              <td className="px-6 py-4 text-sm text-gray-500">
+              <td className="px-6 py-4 text-sm text-[var(--text-muted)]">
                 {new Date(u.created_at).toLocaleDateString("th-TH")}
               </td>
               <td className="px-6 py-4">
                 {u.id === currentUserId ? (
-                  <span className="text-xs text-gray-600">-</span>
+                  <span className="text-xs" style={{ color: "var(--text-muted)" }}>-</span>
                 ) : (
                   <select
                     value={u.role}
                     disabled={loadingId === u.id}
                     onChange={(e) => handleChangeRole(u.id, e.target.value)}
-                    className="text-sm bg-gray-800 border border-gray-700 text-white rounded-xl px-3 py-1.5 focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none disabled:opacity-50"
+                    className="text-sm border border-white/[0.07] text-white rounded-xl px-3 py-1.5 focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none disabled:opacity-50 bg-[var(--bg-primary)]"
                   >
                     <option value="student">ผู้เรียน</option>
                     <option value="instructor">ผู้สอน</option>

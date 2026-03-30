@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Prompt, Kanit } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
@@ -17,10 +17,15 @@ const kanit = Kanit({
   weight: ["400", "500", "600", "700"],
 });
 
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+};
+
 export const metadata: Metadata = {
   title: "KruCraft LMS — ระบบเรียนออนไลน์",
   description: "ระบบจัดการเรียนรู้ออนไลน์ด้วยวิดีโอ",
-  viewport: { width: "device-width", initialScale: 1, maximumScale: 1 },
 };
 
 export default function RootLayout({

@@ -40,7 +40,7 @@ export default function AdminProductActions({ products }: { products: Product[] 
   const [thumbnailUrl, setThumbnailUrl] = useState("");
   const [isPublished, setIsPublished] = useState(false);
 
-  const inputClass = "w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-2.5 text-sm text-white placeholder:text-gray-600 focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none";
+  const inputClass = "w-full border border-white/[0.07] rounded-xl px-4 py-2.5 text-sm text-white focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none" + " placeholder:text-[var(--text-muted)]" + " bg-[var(--bg-primary)]";
 
   const resetForm = () => { setTitle(""); setDescription(""); setPrice(0); setCategory("worksheet"); setFileUrl(""); setThumbnailUrl(""); setIsPublished(false); setShowForm(false); setEditingId(null); };
 
@@ -96,73 +96,73 @@ export default function AdminProductActions({ products }: { products: Product[] 
     <>
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-bold text-white">จัดการสินค้า</h1>
-        <button onClick={() => { resetForm(); setShowForm(true); }} className="px-5 py-2.5 bg-indigo-600 text-white text-sm font-medium rounded-xl hover:bg-indigo-500 transition">
+        <button onClick={() => { resetForm(); setShowForm(true); }} className="px-5 py-2.5 bg-emerald-500 text-black text-sm font-medium rounded-xl hover:bg-emerald-400 transition">
           + เพิ่มสินค้า
         </button>
       </div>
 
       {showForm && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <form onSubmit={handleSubmit} className="bg-gray-900 border border-gray-700 rounded-2xl w-full max-w-lg p-6 space-y-5 shadow-2xl max-h-[90vh] overflow-y-auto">
+          <form onSubmit={handleSubmit} className="border border-white/[0.07] rounded-2xl w-full max-w-lg p-6 space-y-5 shadow-2xl max-h-[90vh] overflow-y-auto" style={{ backgroundColor: "var(--bg-card)" }}>
             <h2 className="text-lg font-semibold text-white">{editingId ? "แก้ไขสินค้า" : "เพิ่มสินค้าใหม่"}</h2>
             <div>
-              <label className="block text-sm text-gray-400 mb-1.5">ชื่อสินค้า *</label>
+              <label className="block text-sm mb-1.5" style={{ color: "var(--text-secondary)" }}>ชื่อสินค้า *</label>
               <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} required autoFocus className={inputClass} />
             </div>
             <div>
-              <label className="block text-sm text-gray-400 mb-1.5">รายละเอียด</label>
+              <label className="block text-sm mb-1.5" style={{ color: "var(--text-secondary)" }}>รายละเอียด</label>
               <textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={3} className={inputClass} />
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm text-gray-400 mb-1.5">ราคา (บาท)</label>
+                <label className="block text-sm mb-1.5" style={{ color: "var(--text-secondary)" }}>ราคา (บาท)</label>
                 <input type="number" min="0" value={price} onChange={(e) => setPrice(Number(e.target.value))} className={inputClass} />
               </div>
               <div>
-                <label className="block text-sm text-gray-400 mb-1.5">หมวดหมู่</label>
+                <label className="block text-sm mb-1.5" style={{ color: "var(--text-secondary)" }}>หมวดหมู่</label>
                 <select value={category} onChange={(e) => setCategory(e.target.value)} className={inputClass}>
                   {CATEGORIES.map((c) => <option key={c.value} value={c.value}>{c.label}</option>)}
                 </select>
               </div>
             </div>
             <div>
-              <label className="block text-sm text-gray-400 mb-1.5">รูปปก</label>
+              <label className="block text-sm mb-1.5" style={{ color: "var(--text-secondary)" }}>รูปปก</label>
               {thumbnailUrl && <img src={thumbnailUrl} alt="" className="w-full h-32 object-cover rounded-xl mb-2" />}
-              <input type="file" accept="image/*" onChange={(e) => handleUpload(e, "thumbnail")} disabled={uploading} className="w-full text-sm text-gray-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-indigo-500/10 file:text-indigo-400" />
+              <input type="file" accept="image/*" onChange={(e) => handleUpload(e, "thumbnail")} disabled={uploading} className="w-full text-sm file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-emerald-500/10 file:text-emerald-400" style={{ color: "var(--text-muted)" }} />
             </div>
             <div>
-              <label className="block text-sm text-gray-400 mb-1.5">ไฟล์สินค้า (PDF/ZIP) *</label>
+              <label className="block text-sm mb-1.5" style={{ color: "var(--text-secondary)" }}>ไฟล์สินค้า (PDF/ZIP) *</label>
               {fileUrl && <p className="text-xs text-emerald-400 mb-1 truncate">{fileUrl}</p>}
-              <input type="file" accept=".pdf,.zip,.epub,.doc,.docx" onChange={(e) => handleUpload(e, "file")} disabled={uploading} className="w-full text-sm text-gray-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-indigo-500/10 file:text-indigo-400" />
-              {uploading && <p className="text-xs text-gray-500 mt-1">กำลังอัพโหลด...</p>}
+              <input type="file" accept=".pdf,.zip,.epub,.doc,.docx" onChange={(e) => handleUpload(e, "file")} disabled={uploading} className="w-full text-sm file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-emerald-500/10 file:text-emerald-400" style={{ color: "var(--text-muted)" }} />
+              {uploading && <p className="text-xs mt-1" style={{ color: "var(--text-muted)" }}>กำลังอัพโหลด...</p>}
             </div>
-            <label className="flex items-center gap-3 p-3 bg-gray-800 rounded-xl cursor-pointer">
-              <input type="checkbox" checked={isPublished} onChange={(e) => setIsPublished(e.target.checked)} className="rounded border-gray-600 bg-gray-700 text-indigo-600" />
+            <label className="flex items-center gap-3 p-3 rounded-xl cursor-pointer" style={{ backgroundColor: "var(--bg-primary)" }}>
+              <input type="checkbox" checked={isPublished} onChange={(e) => setIsPublished(e.target.checked)} className="rounded border-white/[0.07] bg-white/[0.05] text-emerald-500" />
               <span className="text-sm text-white">เผยแพร่ทันที</span>
             </label>
             <div className="flex justify-end gap-3">
-              <button type="button" onClick={resetForm} className="px-4 py-2 text-sm text-gray-400 hover:text-white transition">ยกเลิก</button>
-              <button type="submit" disabled={loading || !fileUrl} className="px-5 py-2 bg-indigo-600 text-white text-sm font-medium rounded-xl hover:bg-indigo-500 disabled:opacity-50 transition">{loading ? "กำลังบันทึก..." : "บันทึก"}</button>
+              <button type="button" onClick={resetForm} className="px-4 py-2 text-sm hover:text-white transition" style={{ color: "var(--text-secondary)" }}>ยกเลิก</button>
+              <button type="submit" disabled={loading || !fileUrl} className="px-5 py-2 bg-emerald-500 text-black text-sm font-medium rounded-xl hover:bg-emerald-400 disabled:opacity-50 transition">{loading ? "กำลังบันทึก..." : "บันทึก"}</button>
             </div>
           </form>
         </div>
       )}
 
-      <div className="bg-gray-900 rounded-2xl border border-gray-800 overflow-hidden">
+      <div className="rounded-2xl border border-white/[0.07] overflow-hidden" style={{ backgroundColor: "var(--bg-card)" }}>
         <table className="w-full text-left">
-          <thead className="border-b border-gray-800">
+          <thead className="border-b border-white/[0.07]">
             <tr>
-              <th className="px-6 py-4 text-xs font-medium text-gray-500 uppercase tracking-wider">สินค้า</th>
-              <th className="px-6 py-4 text-xs font-medium text-gray-500 uppercase tracking-wider">หมวด</th>
-              <th className="px-6 py-4 text-xs font-medium text-gray-500 uppercase tracking-wider">ราคา</th>
-              <th className="px-6 py-4 text-xs font-medium text-gray-500 uppercase tracking-wider">ผู้ขาย</th>
-              <th className="px-6 py-4 text-xs font-medium text-gray-500 uppercase tracking-wider">สถานะ</th>
-              <th className="px-6 py-4 text-xs font-medium text-gray-500 uppercase tracking-wider">จัดการ</th>
+              <th className="px-6 py-4 text-xs font-medium text-[var(--text-muted)] uppercase tracking-wider">สินค้า</th>
+              <th className="px-6 py-4 text-xs font-medium text-[var(--text-muted)] uppercase tracking-wider">หมวด</th>
+              <th className="px-6 py-4 text-xs font-medium text-[var(--text-muted)] uppercase tracking-wider">ราคา</th>
+              <th className="px-6 py-4 text-xs font-medium text-[var(--text-muted)] uppercase tracking-wider">ผู้ขาย</th>
+              <th className="px-6 py-4 text-xs font-medium text-[var(--text-muted)] uppercase tracking-wider">สถานะ</th>
+              <th className="px-6 py-4 text-xs font-medium text-[var(--text-muted)] uppercase tracking-wider">จัดการ</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-800/60">
+          <tbody className="divide-y divide-white/[0.04]">
             {products.map((p) => (
-              <tr key={p.id} className="hover:bg-gray-800/50 transition">
+              <tr key={p.id} className="hover:bg-white/[0.03] transition">
                 <td className="px-6 py-4">
                   <div className="flex items-center gap-3">
                     {p.thumbnail_url ? (
@@ -175,20 +175,20 @@ export default function AdminProductActions({ products }: { products: Product[] 
                     <span className="text-sm font-medium text-white">{p.title}</span>
                   </div>
                 </td>
-                <td className="px-6 py-4 text-sm text-gray-400">{CATEGORIES.find((c) => c.value === p.category)?.label || p.category}</td>
-                <td className="px-6 py-4 text-sm text-gray-400">{p.price === 0 ? "ฟรี" : `฿${p.price.toLocaleString()}`}</td>
-                <td className="px-6 py-4 text-sm text-gray-400">{p.seller?.full_name || "-"}</td>
+                <td className="px-6 py-4 text-sm" style={{ color: "var(--text-secondary)" }}>{CATEGORIES.find((c) => c.value === p.category)?.label || p.category}</td>
+                <td className="px-6 py-4 text-sm" style={{ color: "var(--text-secondary)" }}>{p.price === 0 ? "ฟรี" : `฿${p.price.toLocaleString()}`}</td>
+                <td className="px-6 py-4 text-sm" style={{ color: "var(--text-secondary)" }}>{p.seller?.full_name || "-"}</td>
                 <td className="px-6 py-4">
-                  <button onClick={() => handleToggle(p)} className={`text-xs font-medium px-2.5 py-1 rounded-full transition ${p.is_published ? "bg-emerald-500/20 text-emerald-400 ring-1 ring-emerald-500/30" : "bg-amber-500/20 text-amber-400 ring-1 ring-amber-500/30"}`}>
+                  <button onClick={() => handleToggle(p)} className={`text-xs font-medium px-2.5 py-1 rounded-full transition ${p.is_published ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/20" : "bg-amber-500/20 text-amber-400 border border-amber-500/20"}`}>
                     {p.is_published ? "เผยแพร่" : "ร่าง"}
                   </button>
                 </td>
                 <td className="px-6 py-4">
                   <div className="flex items-center gap-1">
-                    <button onClick={() => openEdit(p)} className="p-1.5 text-gray-500 hover:text-white hover:bg-gray-800 rounded-lg transition">
+                    <button onClick={() => openEdit(p)} className="p-1.5 text-[var(--text-muted)] hover:text-white hover:bg-white/[0.03] rounded-lg transition">
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
                     </button>
-                    <button onClick={() => handleDelete(p.id, p.title)} className="p-1.5 text-gray-500 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition">
+                    <button onClick={() => handleDelete(p.id, p.title)} className="p-1.5 text-[var(--text-muted)] hover:text-red-400 hover:bg-red-500/10 rounded-lg transition">
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
                     </button>
                   </div>

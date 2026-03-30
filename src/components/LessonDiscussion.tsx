@@ -41,7 +41,10 @@ export default function LessonDiscussion({ lessonId, courseId }: { lessonId: str
                 {post.is_pinned && <span className="text-[9px] bg-amber-500/20 text-amber-400 px-1.5 py-0.5 rounded">ปักหมุด</span>}
               </div>
               <p className="text-sm whitespace-pre-wrap" style={{ color: "var(--text-secondary)" }}>{post.content}</p>
-              <button onClick={() => setReplyTo(post.id)} className="text-[10px] mt-1 hover:text-emerald-400 transition" style={{ color: "var(--text-muted)" }}>ตอบกลับ</button>
+              <div className="flex gap-3 mt-1">
+                <button onClick={() => setReplyTo(post.id)} className="text-[10px] hover:text-emerald-400 transition" style={{ color: "var(--text-muted)" }}>ตอบกลับ</button>
+                <button onClick={async () => { await fetch("/api/discussions/pin", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ discussionId: post.id, pin: !post.is_pinned }) }); fetch(`/api/discussions?lessonId=${lessonId}`).then((r) => r.json()).then(setPosts); }} className="text-[10px] hover:text-amber-400 transition" style={{ color: "var(--text-muted)" }}>{post.is_pinned ? "เลิกปักหมุด" : "ปักหมุด"}</button>
+              </div>
             </div>
           </div>
           {getReplies(post.id).map((reply) => (

@@ -110,9 +110,12 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
-  // ส่ง Telegram แจ้ง admin
-  const telegramToken = process.env.TELEGRAM_BOT_TOKEN;
-  const telegramChatId = process.env.TELEGRAM_CHAT_ID;
+  // ส่ง Telegram แจ้ง admin (อ่านจาก DB ก่อน fallback env)
+  const { data: tgSettings } = await supabase.from("site_settings").select("key, value").in("key", ["telegram_bot_token", "telegram_chat_id"]);
+  const tgMap: Record<string, string> = {};
+  tgSettings?.forEach((s) => { tgMap[s.key] = s.value; });
+  const telegramToken = tgMap.telegram_bot_token || process.env.TELEGRAM_BOT_TOKEN;
+  const telegramChatId = tgMap.telegram_chat_id || process.env.TELEGRAM_CHAT_ID;
 
   if (telegramToken && telegramChatId) {
     const { data: profile } = await supabase
