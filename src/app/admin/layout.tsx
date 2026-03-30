@@ -8,16 +8,15 @@ import AdminSidebar from "./AdminSidebar";
 export const metadata: Metadata = { robots: "noindex, nofollow" };
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
-  await requireAdmin();
+  const { supabase } = await requireAdmin();
+
+  const { count: pendingSlips } = await supabase.from("payment_slips").select("*", { count: "exact", head: true }).eq("status", "pending");
 
   return (
     <div className="min-h-screen flex" style={{ background: "var(--bg-primary)" }}>
-      {/* Sidebar — desktop */}
-      <AdminSidebar />
+      <AdminSidebar pendingSlips={pendingSlips ?? 0} />
 
-      {/* Main */}
       <div className="flex-1 min-w-0">
-        {/* Top bar — mobile only shows hamburger handled by sidebar */}
         <header className="sticky top-0 z-40 backdrop-blur-xl border-b lg:hidden" style={{ background: "var(--glass-bg)", borderColor: "var(--glass-border)" }}>
           <div className="flex items-center justify-between px-4 h-12">
             <Logo href="/admin" />
