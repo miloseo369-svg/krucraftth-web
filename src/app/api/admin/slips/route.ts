@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createServiceClient } from "@/lib/supabase/admin";
+import { addCredits } from "@/lib/credits";
 import { logActivity } from "@/lib/log";
 import crypto from "crypto";
 
@@ -70,6 +71,11 @@ export async function GET(request: NextRequest) {
           },
           { onConflict: "user_id,product_id" }
         );
+      }
+    } else if (slip.item_type === "credits") {
+      const creditsAmount = parseInt(slip.item_id, 10);
+      if (creditsAmount > 0) {
+        await addCredits(slip.user_id, creditsAmount, `เติมเครดิต ${creditsAmount} (฿${slip.amount})`, "topup", "payment_slip", slip.id);
       }
     }
 
@@ -148,6 +154,11 @@ export async function PATCH(request: NextRequest) {
           },
           { onConflict: "user_id,product_id" }
         );
+      }
+    } else if (slip.item_type === "credits") {
+      const creditsAmount = parseInt(slip.item_id, 10);
+      if (creditsAmount > 0) {
+        await addCredits(slip.user_id, creditsAmount, `เติมเครดิต ${creditsAmount} (฿${slip.amount})`, "topup", "payment_slip", slip.id);
       }
     }
   }

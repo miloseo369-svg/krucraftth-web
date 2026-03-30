@@ -259,7 +259,7 @@ export default async function CourseDetailPage({ params }: { params: Promise<{ c
             <h2 className="text-xl font-bold text-white">พร้อมเริ่มเรียนแล้วหรือยัง?</h2>
             <p className="text-sm mt-2" style={{ color: "var(--text-secondary)" }}>เริ่มเรียนได้ทันทีหลังลงทะเบียน · เรียนได้ตลอดชีพ</p>
             <div className="mt-5 max-w-sm mx-auto">
-              <EnrollButton courseId={courseId} courseTitle={course.title} price={course.price} />
+              <EnrollButton courseId={courseId} courseTitle={course.title} price={course.price} creditPrice={course.credit_price ?? 0} />
             </div>
           </div>
         )}

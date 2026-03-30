@@ -49,25 +49,45 @@ export async function POST(request: NextRequest) {
     const { data: product } = await supabase.from("products").select("id, price").eq("id", itemId).eq("is_published", true).maybeSingle();
     if (!product) return NextResponse.json({ error: "ไม่พบสินค้านี้" }, { status: 404 });
     if (Math.abs(product.price - parsedAmount) > 1) return NextResponse.json({ error: "จำนวนเงินไม่ตรงกับราคาสินค้า" }, { status: 400 });
+  } else if (itemType === "credits") {
+    // Validate credit package: itemId = credits amount
+    const validPackages: Record<string, number> = { "50": 29, "150": 79, "500": 199, "1500": 499 };
+    const expectedPrice = validPackages[itemId];
+    if (!expectedPrice) return NextResponse.json({ error: "แพ็คเกจเครดิตไม่ถูกต้อง" }, { status: 400 });
+    if (Math.abs(expectedPrice - parsedAmount) > 1) return NextResponse.json({ error: "จำนวนเงินไม่ตรงกับราคาแพ็คเกจ" }, { status: 400 });
   } else {
     return NextResponse.json({ error: "ประเภทไม่ถูกต้อง" }, { status: 400 });
   }
 
-  // ตรวจว่าส่งสลิปแล้วหรือยัง (pending)
-  const { data: existing } = await supabase
-    .from("payment_slips")
-    .select("id, status")
-    .eq("user_id", user.id)
-    .eq("item_type", itemType)
-    .eq("item_id", itemId)
-    .in("status", ["pending", "approved"])
-    .maybeSingle();
+  // ตรวจว่าส่งสลิปแล้วหรือยัง (pending) — credits สามารถซื้อซ้ำได้
+  if (itemType !== "credits") {
+    const { data: existing } = await supabase
+      .from("payment_slips")
+      .select("id, status")
+      .eq("user_id", user.id)
+      .eq("item_type", itemType)
+      .eq("item_id", itemId)
+      .in("status", ["pending", "approved"])
+      .maybeSingle();
 
-  if (existing?.status === "approved") {
-    return NextResponse.json({ error: "คุณชำระเงินรายการนี้แล้ว" }, { status: 400 });
-  }
-  if (existing?.status === "pending") {
-    return NextResponse.json({ error: "สลิปของคุณอยู่ระหว่างรอตรวจสอบ" }, { status: 400 });
+    if (existing?.status === "approved") {
+      return NextResponse.json({ error: "คุณชำระเงินรายการนี้แล้ว" }, { status: 400 });
+    }
+    if (existing?.status === "pending") {
+      return NextResponse.json({ error: "สลิปของคุณอยู่ระหว่างรอตรวจสอบ" }, { status: 400 });
+    }
+  } else {
+    // Credits: check only pending (don't block repeat purchases)
+    const { data: pendingCredit } = await supabase
+      .from("payment_slips")
+      .select("id")
+      .eq("user_id", user.id)
+      .eq("item_type", "credits")
+      .eq("status", "pending")
+      .maybeSingle();
+    if (pendingCredit) {
+      return NextResponse.json({ error: "คุณมีสลิปเครดิตรอตรวจอยู่แล้ว กรุณารอ admin อนุมัติก่อน" }, { status: 400 });
+    }
   }
 
   // อัพโหลดสลิป
@@ -129,7 +149,7 @@ export async function POST(request: NextRequest) {
       .eq("id", user.id)
       .maybeSingle();
 
-    const itemLabel = itemType === "course" ? "คอร์ส" : "สินค้า";
+    const itemLabel = itemType === "course" ? "คอร์ส" : itemType === "credits" ? `เติมเครดิต ${itemId} เครดิต` : "สินค้า";
     const siteUrl = process.env.NEXT_PUBLIC_SITE_URL!;
     const message = [
       `💰 *สลิปใหม่รอตรวจสอบ*`,

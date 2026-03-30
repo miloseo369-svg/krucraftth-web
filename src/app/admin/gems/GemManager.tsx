@@ -39,13 +39,13 @@ export default function GemManager({ initialGems }: { initialGems: Gem[] }) {
   const [showForm, setShowForm] = useState(false);
   const [editing, setEditing] = useState<Gem | null>(null);
   const [loading, setLoading] = useState(false);
-  const [form, setForm] = useState({ title: "", description: "", url: "https://gemini.google.com/app", gradient: "from-blue-500 to-cyan-400", access_level: "all", sort_order: 0 });
+  const [form, setForm] = useState({ title: "", description: "", url: "/admin/ai-tools", gradient: "from-blue-500 to-cyan-400", access_level: "all", sort_order: 0 });
   const router = useRouter();
   const { toast } = useToast();
   const supabase = createClient();
 
   function resetForm() {
-    setForm({ title: "", description: "", url: "https://gemini.google.com/app", gradient: "from-blue-500 to-cyan-400", access_level: "all", sort_order: gems.length + 1 });
+    setForm({ title: "", description: "", url: "/admin/ai-tools", gradient: "from-blue-500 to-cyan-400", access_level: "all", sort_order: gems.length + 1 });
     setEditing(null);
     setShowForm(false);
   }
@@ -114,7 +114,7 @@ export default function GemManager({ initialGems }: { initialGems: Gem[] }) {
             </div>
             <div>
               <label className="block text-xs font-medium text-white mb-1.5">URL</label>
-              <input value={form.url} onChange={(e) => setForm({ ...form, url: e.target.value })} placeholder="https://gemini.google.com/app" className={inputClass} />
+              <input value={form.url} onChange={(e) => setForm({ ...form, url: e.target.value })} placeholder="/admin/ai-tools" className={inputClass} />
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div>

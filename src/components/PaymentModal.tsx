@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { showToast } from "@/components/Toast";
 
 interface PaymentModalProps {
-  itemType: "course" | "product";
+  itemType: "course" | "product" | "credits";
   itemId: string;
   itemTitle: string;
   price: number;

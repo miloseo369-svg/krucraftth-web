@@ -8,7 +8,7 @@ export const metadata: Metadata = {
 };
 import Badge2 from "@/components/ui/Badge2";
 import PremiumCourseCard from "@/components/PremiumCourseCard";
-import Logo from "@/components/Logo";
+import PublicNav from "@/components/PublicNav";
 
 export default async function HomePage() {
   const supabase = await createClient();
@@ -23,16 +23,7 @@ export default async function HomePage() {
   return (
     <div className="min-h-screen" style={{ background: "var(--bg-primary)" }}>
       {/* Nav */}
-      <nav className="sticky top-0 z-50 backdrop-blur-xl border-b" style={{ background: "var(--glass-bg)", borderColor: "var(--glass-border)", backdropFilter: "blur(var(--glass-blur))" }}>
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 flex items-center justify-between h-14">
-          <Logo />
-          <div className="flex items-center gap-5">
-            <Link href="/courses" className="text-sm text-[var(--text-secondary)] hover:text-white transition">คอร์สเรียน</Link>
-            <Link href="/shop" className="text-sm text-[var(--text-secondary)] hover:text-white transition">ร้านค้า</Link>
-            <Link href="/login" className="px-4 py-1.5 rounded-lg bg-emerald-500 text-black text-sm font-medium hover:bg-emerald-400 active:scale-95 transition-all">เข้าสู่ระบบ</Link>
-          </div>
-        </div>
-      </nav>
+      <PublicNav />
 
       {/* Hero */}
       <section className="relative overflow-hidden bg-grid">

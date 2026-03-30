@@ -1,7 +1,8 @@
 "use client";
 
-import Link from "next/link";
+import { useState } from "react";
 import { toBuddhistDate } from "@/lib/utils";
+import PaymentModal from "@/components/PaymentModal";
 
 interface Transaction { id: string; type: string; amount: number; balance_after: number; description: string; created_at: string; }
 interface Pricing { action: string; credits_cost: number; label: string; }
@@ -22,6 +23,8 @@ const TYPE_LABELS: Record<string, { label: string; color: string }> = {
 };
 
 export default function CreditsClient({ balance, transactions, pricing }: { balance: number; transactions: Transaction[]; pricing: Pricing[] }) {
+  const [selectedPkg, setSelectedPkg] = useState<typeof TOPUP_PACKAGES[number] | null>(null);
+
   return (
     <div className="animate-fade-in max-w-4xl mx-auto">
       {/* Balance card */}
@@ -34,7 +37,7 @@ export default function CreditsClient({ balance, transactions, pricing }: { bala
             <span className="text-sm" style={{ color: "var(--text-secondary)" }}>เครดิต</span>
           </div>
           <div className="flex gap-3 mt-4">
-            <Link href="/credits#topup" className="px-5 py-2.5 rounded-xl bg-emerald-500 text-black font-medium text-sm hover:bg-emerald-400 active:scale-95 transition-all">เติมเครดิต</Link>
+            <a href="#topup" className="px-5 py-2.5 rounded-xl bg-emerald-500 text-black font-medium text-sm hover:bg-emerald-400 active:scale-95 transition-all">เติมเครดิต</a>
           </div>
         </div>
       </div>
@@ -57,16 +60,21 @@ export default function CreditsClient({ balance, transactions, pricing }: { bala
         <h2 className="text-sm font-semibold text-white mb-3">แพ็คเกจเติมเครดิต</h2>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           {TOPUP_PACKAGES.map((pkg) => (
-            <Link key={pkg.credits} href={`/shop`} className={`relative rounded-xl p-4 text-center transition-all hover:-translate-y-0.5 ${pkg.popular ? "border-2 border-emerald-500/40 bg-emerald-500/5" : "border border-white/[0.07]"}`} style={!pkg.popular ? { background: "var(--bg-primary)" } : {}}>
+            <button
+              key={pkg.credits}
+              onClick={() => setSelectedPkg(pkg)}
+              className={`relative rounded-xl p-4 text-center transition-all hover:-translate-y-0.5 cursor-pointer ${pkg.popular ? "border-2 border-emerald-500/40 bg-emerald-500/5" : "border border-white/[0.07]"}`}
+              style={!pkg.popular ? { background: "var(--bg-primary)" } : {}}
+            >
               {pkg.popular && <span className="absolute -top-2 left-1/2 -translate-x-1/2 text-[9px] px-2 py-0.5 rounded-full bg-emerald-500 text-black font-bold">ยอดนิยม</span>}
               <p className="text-2xl font-bold text-white">{pkg.credits}</p>
               <p className="text-[10px]" style={{ color: "var(--text-muted)" }}>เครดิต</p>
               <p className="text-sm font-bold text-emerald-400 mt-2">฿{pkg.price}</p>
               <p className="text-[9px] mt-1" style={{ color: "var(--text-muted)" }}>฿{(pkg.price / pkg.credits).toFixed(2)}/เครดิต</p>
-            </Link>
+            </button>
           ))}
         </div>
-        <p className="text-[10px] text-center mt-3" style={{ color: "var(--text-muted)" }}>ชำระผ่านการโอนเงิน → Admin เติมเครดิตให้</p>
+        <p className="text-[10px] text-center mt-3" style={{ color: "var(--text-muted)" }}>ชำระผ่านการโอนเงิน → ระบบเติมเครดิตให้อัตโนมัติหลังอนุมัติ</p>
       </div>
 
       {/* Transaction history */}
@@ -99,6 +107,17 @@ export default function CreditsClient({ balance, transactions, pricing }: { bala
           </div>
         )}
       </div>
+
+      {/* Payment Modal for credit purchase */}
+      {selectedPkg && (
+        <PaymentModal
+          itemType="credits"
+          itemId={String(selectedPkg.credits)}
+          itemTitle={`เติมเครดิต ${selectedPkg.credits} เครดิต`}
+          price={selectedPkg.price}
+          onClose={() => setSelectedPkg(null)}
+        />
+      )}
     </div>
   );
 }
