@@ -15,12 +15,12 @@ export default async function VerifyCertPage({ params }: { params: Promise<{ cer
   if (!certificate) notFound();
 
   return (
-    <div className="min-h-screen bg-gray-950 flex items-center justify-center p-4 relative overflow-hidden">
-      <div className="absolute top-1/3 left-1/4 w-96 h-96 bg-indigo-600/10 rounded-full blur-3xl" />
+    <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden" style={{ background: "var(--bg-primary)" }}>
+      <div className="absolute top-1/3 left-1/4 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl" />
       <div className="absolute bottom-1/3 right-1/4 w-96 h-96 bg-purple-600/10 rounded-full blur-3xl" />
 
-      <div className="relative bg-gray-900 border border-gray-800 rounded-2xl max-w-lg w-full p-8 text-center">
-        <Link href="/" className="text-sm bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent font-bold">KruCraft</Link>
+      <div className="relative rounded-2xl border border-white/[0.07] max-w-lg w-full p-8 text-center" style={{ background: "var(--bg-card)" }}>
+        <Link href="/" className="text-sm bg-gradient-to-r from-emerald-400 to-purple-400 bg-clip-text text-transparent font-bold">KruCraft</Link>
 
         {certificate.is_valid ? (
           <>
@@ -30,9 +30,9 @@ export default async function VerifyCertPage({ params }: { params: Promise<{ cer
               </svg>
             </div>
             <h1 className="text-2xl font-bold text-white mb-2">ใบประกาศนียบัตรถูกต้อง</h1>
-            <p className="text-gray-500 mb-6">ยืนยันความถูกต้องของใบประกาศนียบัตรนี้</p>
+            <p className="mb-6" style={{ color: "var(--text-muted)" }}>ยืนยันความถูกต้องของใบประกาศนียบัตรนี้</p>
 
-            <div className="bg-gray-800/50 rounded-xl p-6 text-left space-y-4">
+            <div className="bg-white/[0.05] rounded-xl p-6 text-left space-y-4">
               {[
                 { label: "รหัสใบประกาศ", value: certificate.cert_id, mono: true },
                 { label: "ชื่อผู้รับ", value: certificate.user?.full_name || "-" },
@@ -40,7 +40,7 @@ export default async function VerifyCertPage({ params }: { params: Promise<{ cer
                 { label: "วันที่ออก", value: new Date(certificate.issued_at).toLocaleDateString("th-TH", { year: "numeric", month: "long", day: "numeric" }) },
               ].map((item) => (
                 <div key={item.label}>
-                  <div className="text-xs text-gray-500 mb-0.5">{item.label}</div>
+                  <div className="text-xs mb-0.5" style={{ color: "var(--text-muted)" }}>{item.label}</div>
                   <div className={`text-white font-medium ${item.mono ? "font-mono" : ""}`}>{item.value}</div>
                 </div>
               ))}
@@ -54,12 +54,12 @@ export default async function VerifyCertPage({ params }: { params: Promise<{ cer
               </svg>
             </div>
             <h1 className="text-2xl font-bold text-white mb-2">ใบประกาศนียบัตรถูกเพิกถอน</h1>
-            <p className="text-gray-500">ใบประกาศนียบัตรนี้ไม่สามารถใช้งานได้อีกต่อไป</p>
+            <p style={{ color: "var(--text-muted)" }}>ใบประกาศนียบัตรนี้ไม่สามารถใช้งานได้อีกต่อไป</p>
           </>
         )}
 
-        <div className="mt-6 pt-6 border-t border-gray-800">
-          <Link href="/" className="text-sm text-gray-500 hover:text-white transition">
+        <div className="mt-6 pt-6 border-t border-white/[0.07]">
+          <Link href="/" className="text-sm hover:text-white transition" style={{ color: "var(--text-muted)" }}>
             ← กลับหน้าหลัก KruCraft
           </Link>
         </div>

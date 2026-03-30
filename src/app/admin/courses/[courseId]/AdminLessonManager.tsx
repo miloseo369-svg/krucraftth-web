@@ -23,7 +23,7 @@ interface Module {
 }
 
 const TYPE_CONFIG: Record<string, { label: string; icon: string; color: string }> = {
-  video: { label: "วิดีโอ", icon: "M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z", color: "text-indigo-400 bg-indigo-500/10" },
+  video: { label: "วิดีโอ", icon: "M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z", color: "text-emerald-400 bg-emerald-500/10" },
   pdf: { label: "PDF", icon: "M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z", color: "text-red-400 bg-red-500/10" },
   quiz: { label: "แบบทดสอบ", icon: "M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4", color: "text-amber-400 bg-amber-500/10" },
   live: { label: "สด", icon: "M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z", color: "text-emerald-400 bg-emerald-500/10" },
@@ -149,28 +149,29 @@ export default function AdminLessonManager({
       {initialModules
         .sort((a, b) => a.sequence - b.sequence)
         .map((mod) => (
-          <div key={mod.id} className="bg-gray-900 rounded-2xl border border-gray-800 overflow-hidden">
+          <div key={mod.id} className="rounded-2xl border border-white/[0.07] overflow-hidden" style={{ background: "var(--bg-card)" }}>
             {/* Module Header */}
-            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-800">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-white/[0.07]">
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-lg bg-indigo-500/10 flex items-center justify-center text-indigo-400 text-sm font-bold">
+                <div className="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400 text-sm font-bold">
                   {mod.sequence}
                 </div>
                 <h3 className="font-semibold text-white">{mod.title}</h3>
-                <span className="text-xs text-gray-500">
+                <span className="text-xs" style={{ color: "var(--text-muted)" }}>
                   {mod.lessons?.length ?? 0} บทเรียน
                 </span>
               </div>
               <div className="flex items-center gap-1">
                 <button
                   onClick={() => openLessonForm(mod.id)}
-                  className="px-3 py-1.5 text-xs font-medium text-indigo-400 hover:text-white hover:bg-indigo-600 rounded-lg transition"
+                  className="px-3 py-1.5 text-xs font-medium text-emerald-400 hover:text-white hover:bg-emerald-500 rounded-lg transition"
                 >
                   + บทเรียน
                 </button>
                 <button
                   onClick={() => { setEditModuleId(mod.id); setModuleTitle(mod.title); setShowModuleForm(true); }}
-                  className="p-1.5 text-gray-500 hover:text-white hover:bg-gray-800 rounded-lg transition"
+                  className="p-1.5 hover:text-white hover:bg-white/[0.05] rounded-lg transition"
+                  style={{ color: "var(--text-muted)" }}
                   title="แก้ไข"
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -179,7 +180,8 @@ export default function AdminLessonManager({
                 </button>
                 <button
                   onClick={() => handleDeleteModule(mod.id, mod.title)}
-                  className="p-1.5 text-gray-500 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition"
+                  className="p-1.5 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition"
+                  style={{ color: "var(--text-muted)" }}
                   title="ลบ"
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -198,12 +200,12 @@ export default function AdminLessonManager({
                   return (
                     <div
                       key={lesson.id}
-                      className={`group flex items-center justify-between px-6 py-3.5 hover:bg-gray-800/50 transition ${
-                        idx < (mod.lessons?.length ?? 1) - 1 ? "border-b border-gray-800/60" : ""
+                      className={`group flex items-center justify-between px-6 py-3.5 hover:bg-white/[0.03] transition ${
+                        idx < (mod.lessons?.length ?? 1) - 1 ? "border-b border-white/[0.04]" : ""
                       }`}
                     >
                       <div className="flex items-center gap-4">
-                        <span className="text-xs text-gray-600 w-5 text-right">{lesson.sequence}</span>
+                        <span className="text-xs w-5 text-right" style={{ color: "var(--text-muted)" }}>{lesson.sequence}</span>
                         <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${cfg.color}`}>
                           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={cfg.icon} />
@@ -212,7 +214,7 @@ export default function AdminLessonManager({
                         <div>
                           <span className="text-sm text-gray-200">{lesson.title}</span>
                           <div className="flex items-center gap-2 mt-0.5">
-                            <span className="text-xs text-gray-500">{cfg.label}</span>
+                            <span className="text-xs" style={{ color: "var(--text-muted)" }}>{cfg.label}</span>
                             {lesson.is_free_preview && (
                               <span className="text-xs text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded font-medium">
                                 FREE
@@ -225,7 +227,8 @@ export default function AdminLessonManager({
                         <Link href={`/instructor/quiz/${courseId}/${lesson.id}`} className="px-2 py-1 text-[10px] font-medium text-purple-400 hover:bg-purple-500/10 rounded-lg transition">Quiz</Link>
                         <button
                           onClick={() => openLessonForm(mod.id, lesson)}
-                          className="p-1.5 text-gray-500 hover:text-white hover:bg-gray-700 rounded-lg transition"
+                          className="p-1.5 hover:text-white hover:bg-white/[0.05] rounded-lg transition"
+                          style={{ color: "var(--text-muted)" }}
                         >
                           <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
@@ -233,7 +236,8 @@ export default function AdminLessonManager({
                         </button>
                         <button
                           onClick={() => handleDeleteLesson(lesson.id, lesson.title)}
-                          className="p-1.5 text-gray-500 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition"
+                          className="p-1.5 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition"
+                          style={{ color: "var(--text-muted)" }}
                         >
                           <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -245,10 +249,10 @@ export default function AdminLessonManager({
                 })}
               {(!mod.lessons || mod.lessons.length === 0) && (
                 <div className="px-6 py-8 text-center">
-                  <p className="text-sm text-gray-600 mb-3">ยังไม่มีบทเรียนในโมดูลนี้</p>
+                  <p className="text-sm mb-3" style={{ color: "var(--text-muted)" }}>ยังไม่มีบทเรียนในโมดูลนี้</p>
                   <button
                     onClick={() => openLessonForm(mod.id)}
-                    className="text-sm text-indigo-400 hover:text-indigo-300 font-medium"
+                    className="text-sm text-emerald-400 hover:text-emerald-300 font-medium"
                   >
                     + เพิ่มบทเรียนแรก
                   </button>
@@ -259,17 +263,17 @@ export default function AdminLessonManager({
         ))}
 
       {initialModules.length === 0 && (
-        <div className="bg-gray-900 rounded-2xl border border-gray-800 p-16 text-center">
-          <div className="w-16 h-16 rounded-2xl bg-gray-800 flex items-center justify-center mx-auto mb-4">
-            <svg className="w-8 h-8 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div className="rounded-2xl border border-white/[0.07] p-16 text-center" style={{ background: "var(--bg-card)" }}>
+          <div className="w-16 h-16 rounded-2xl bg-white/[0.05] flex items-center justify-center mx-auto mb-4">
+            <svg className="w-8 h-8" style={{ color: "var(--text-muted)" }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
             </svg>
           </div>
           <h3 className="text-white font-medium mb-1">เริ่มสร้างเนื้อหา</h3>
-          <p className="text-sm text-gray-500 mb-6">เพิ่มโมดูลแรกเพื่อจัดโครงสร้างคอร์ส</p>
+          <p className="text-sm mb-6" style={{ color: "var(--text-muted)" }}>เพิ่มโมดูลแรกเพื่อจัดโครงสร้างคอร์ส</p>
           <button
             onClick={() => { setEditModuleId(null); setModuleTitle(""); setShowModuleForm(true); }}
-            className="px-5 py-2.5 bg-indigo-600 text-white text-sm font-medium rounded-xl hover:bg-indigo-500 transition"
+            className="px-5 py-2.5 bg-emerald-500 text-black text-sm font-medium rounded-xl hover:bg-emerald-400 transition"
           >
             + สร้างโมดูลแรก
           </button>
@@ -280,7 +284,8 @@ export default function AdminLessonManager({
       {initialModules.length > 0 && (
         <button
           onClick={() => { setEditModuleId(null); setModuleTitle(""); setShowModuleForm(true); }}
-          className="w-full py-4 border border-dashed border-gray-700 rounded-2xl text-sm text-gray-500 hover:border-indigo-500 hover:text-indigo-400 hover:bg-indigo-500/5 transition"
+          className="w-full py-4 border border-dashed border-white/[0.07] rounded-2xl text-sm hover:border-emerald-500 hover:text-emerald-400 hover:bg-emerald-500/5 transition"
+          style={{ color: "var(--text-muted)" }}
         >
           + เพิ่มโมดูล
         </button>
@@ -289,12 +294,12 @@ export default function AdminLessonManager({
       {/* Module Modal */}
       {showModuleForm && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <form onSubmit={handleModuleSubmit} className="bg-gray-900 border border-gray-700 rounded-2xl w-full max-w-md p-6 space-y-5 shadow-2xl">
+          <form onSubmit={handleModuleSubmit} className="rounded-2xl border border-white/[0.07] w-full max-w-md p-6 space-y-5 shadow-2xl" style={{ background: "var(--bg-card)" }}>
             <h2 className="text-lg font-semibold text-white">
               {editModuleId ? "แก้ไขโมดูล" : "เพิ่มโมดูลใหม่"}
             </h2>
             <div>
-              <label className="block text-sm text-gray-400 mb-1.5">ชื่อโมดูล</label>
+              <label className="block text-sm mb-1.5" style={{ color: "var(--text-secondary)" }}>ชื่อโมดูล</label>
               <input
                 type="text"
                 value={moduleTitle}
@@ -302,14 +307,14 @@ export default function AdminLessonManager({
                 placeholder="เช่น บทนำ, พื้นฐาน HTML"
                 required
                 autoFocus
-                className="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-2.5 text-sm text-white placeholder:text-gray-600 focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none"
+                className="w-full bg-white/[0.05] border border-white/[0.07] rounded-xl px-4 py-2.5 text-sm text-white placeholder:text-white/30 focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none"
               />
             </div>
             <div className="flex justify-end gap-3">
-              <button type="button" onClick={() => setShowModuleForm(false)} className="px-4 py-2 text-sm text-gray-400 hover:text-white transition">
+              <button type="button" onClick={() => setShowModuleForm(false)} className="px-4 py-2 text-sm hover:text-white transition" style={{ color: "var(--text-secondary)" }}>
                 ยกเลิก
               </button>
-              <button type="submit" disabled={loading} className="px-5 py-2 bg-indigo-600 text-white text-sm font-medium rounded-xl hover:bg-indigo-500 disabled:opacity-50 transition">
+              <button type="submit" disabled={loading} className="px-5 py-2 bg-emerald-500 text-black text-sm font-medium rounded-xl hover:bg-emerald-400 disabled:opacity-50 transition">
                 {loading ? "กำลังบันทึก..." : "บันทึก"}
               </button>
             </div>
@@ -320,12 +325,12 @@ export default function AdminLessonManager({
       {/* Lesson Modal */}
       {showLessonForm && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <form onSubmit={handleLessonSubmit} className="bg-gray-900 border border-gray-700 rounded-2xl w-full max-w-md p-6 space-y-5 shadow-2xl">
+          <form onSubmit={handleLessonSubmit} className="rounded-2xl border border-white/[0.07] w-full max-w-md p-6 space-y-5 shadow-2xl" style={{ background: "var(--bg-card)" }}>
             <h2 className="text-lg font-semibold text-white">
               {editLessonId ? "แก้ไขบทเรียน" : "เพิ่มบทเรียน"}
             </h2>
             <div>
-              <label className="block text-sm text-gray-400 mb-1.5">ชื่อบทเรียน</label>
+              <label className="block text-sm mb-1.5" style={{ color: "var(--text-secondary)" }}>ชื่อบทเรียน</label>
               <input
                 type="text"
                 value={lessonTitle}
@@ -333,11 +338,11 @@ export default function AdminLessonManager({
                 placeholder="เช่น HTML คืออะไร?"
                 required
                 autoFocus
-                className="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-2.5 text-sm text-white placeholder:text-gray-600 focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none"
+                className="w-full bg-white/[0.05] border border-white/[0.07] rounded-xl px-4 py-2.5 text-sm text-white placeholder:text-white/30 focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none"
               />
             </div>
             <div>
-              <label className="block text-sm text-gray-400 mb-1.5">ประเภท</label>
+              <label className="block text-sm mb-1.5" style={{ color: "var(--text-secondary)" }}>ประเภท</label>
               <div className="grid grid-cols-4 gap-2">
                 {Object.entries(TYPE_CONFIG).map(([key, cfg]) => (
                   <button
@@ -346,9 +351,10 @@ export default function AdminLessonManager({
                     onClick={() => setLessonType(key)}
                     className={`py-2 rounded-xl text-xs font-medium transition ${
                       lessonType === key
-                        ? "bg-indigo-600 text-white"
-                        : "bg-gray-800 text-gray-400 hover:bg-gray-700 hover:text-white border border-gray-700"
+                        ? "bg-emerald-500 text-black"
+                        : "bg-white/[0.05] hover:bg-white/[0.05] hover:text-white border border-white/[0.07]"
                     }`}
+                    style={lessonType !== key ? { color: "var(--text-secondary)" } : undefined}
                   >
                     {cfg.label}
                   </button>
@@ -357,33 +363,33 @@ export default function AdminLessonManager({
             </div>
             {lessonType === "video" && (
               <div>
-                <label className="block text-sm text-gray-400 mb-1.5">Video Path</label>
+                <label className="block text-sm mb-1.5" style={{ color: "var(--text-secondary)" }}>Video Path</label>
                 <input
                   type="text"
                   value={videoPath}
                   onChange={(e) => setVideoPath(e.target.value)}
                   placeholder="/videos/intro.mp4"
-                  className="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-2.5 text-sm text-white placeholder:text-gray-600 focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none"
+                  className="w-full bg-white/[0.05] border border-white/[0.07] rounded-xl px-4 py-2.5 text-sm text-white placeholder:text-white/30 focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none"
                 />
               </div>
             )}
-            <label className="flex items-center gap-3 p-3 bg-gray-800 rounded-xl cursor-pointer hover:bg-gray-750 transition">
+            <label className="flex items-center gap-3 p-3 bg-white/[0.05] rounded-xl cursor-pointer hover:bg-white/[0.04] transition">
               <input
                 type="checkbox"
                 checked={isFreePreview}
                 onChange={(e) => setIsFreePreview(e.target.checked)}
-                className="rounded border-gray-600 bg-gray-700 text-indigo-600 focus:ring-indigo-500"
+                className="rounded border-white/20 bg-white/10 text-emerald-500 focus:ring-emerald-500"
               />
               <div>
                 <div className="text-sm text-white">Free Preview</div>
-                <div className="text-xs text-gray-500">ผู้เรียนดูบทเรียนนี้ได้ฟรีโดยไม่ต้องลงทะเบียน</div>
+                <div className="text-xs" style={{ color: "var(--text-muted)" }}>ผู้เรียนดูบทเรียนนี้ได้ฟรีโดยไม่ต้องลงทะเบียน</div>
               </div>
             </label>
             <div className="flex justify-end gap-3">
-              <button type="button" onClick={() => setShowLessonForm(null)} className="px-4 py-2 text-sm text-gray-400 hover:text-white transition">
+              <button type="button" onClick={() => setShowLessonForm(null)} className="px-4 py-2 text-sm hover:text-white transition" style={{ color: "var(--text-secondary)" }}>
                 ยกเลิก
               </button>
-              <button type="submit" disabled={loading} className="px-5 py-2 bg-indigo-600 text-white text-sm font-medium rounded-xl hover:bg-indigo-500 disabled:opacity-50 transition">
+              <button type="submit" disabled={loading} className="px-5 py-2 bg-emerald-500 text-black text-sm font-medium rounded-xl hover:bg-emerald-400 disabled:opacity-50 transition">
                 {loading ? "กำลังบันทึก..." : "บันทึก"}
               </button>
             </div>
