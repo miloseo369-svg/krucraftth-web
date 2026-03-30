@@ -15,6 +15,14 @@ interface Announcement {
   starts_at: string;
   ends_at: string | null;
   created_at: string;
+  display_mode: string;
+  popup_headline: string | null;
+  popup_value: string | null;
+  popup_cta_text: string;
+  popup_dismiss_text: string;
+  popup_countdown_minutes: number;
+  popup_slots_total: number;
+  popup_slots_claimed: number;
 }
 
 const COLORS = [
@@ -45,20 +53,38 @@ export default function AnnouncementsManager({ announcements }: { announcements:
   const [href, setHref] = useState("");
   const [isActive, setIsActive] = useState(true);
   const [endsAt, setEndsAt] = useState("");
+  const [displayMode, setDisplayMode] = useState("banner");
+  const [popupHeadline, setPopupHeadline] = useState("");
+  const [popupValue, setPopupValue] = useState("");
+  const [popupCtaText, setPopupCtaText] = useState("รับข้อเสนอนี้!");
+  const [popupDismissText, setPopupDismissText] = useState("ไม่สนใจ");
+  const [popupCountdown, setPopupCountdown] = useState(0);
+  const [popupSlotsTotal, setPopupSlotsTotal] = useState(0);
+  const [popupSlotsClaimed, setPopupSlotsClaimed] = useState(0);
 
   function resetForm() {
-    setTitle(""); setMessage(""); setType("info"); setBgColor("emerald"); setHref(""); setIsActive(true); setEndsAt(""); setEditingId(null); setShowForm(false);
+    setTitle(""); setMessage(""); setType("info"); setBgColor("emerald"); setHref(""); setIsActive(true); setEndsAt(""); setDisplayMode("banner"); setPopupHeadline(""); setPopupValue(""); setPopupCtaText("รับข้อเสนอนี้!"); setPopupDismissText("ไม่สนใจ"); setPopupCountdown(0); setPopupSlotsTotal(0); setPopupSlotsClaimed(0); setEditingId(null); setShowForm(false);
   }
 
   function openEdit(a: Announcement) {
-    setTitle(a.title); setMessage(a.message); setType(a.type); setBgColor(a.bg_color); setHref(a.href || ""); setIsActive(a.is_active); setEndsAt(a.ends_at ? a.ends_at.slice(0, 16) : ""); setEditingId(a.id); setShowForm(true);
+    setTitle(a.title); setMessage(a.message); setType(a.type); setBgColor(a.bg_color); setHref(a.href || ""); setIsActive(a.is_active); setEndsAt(a.ends_at ? a.ends_at.slice(0, 16) : ""); setDisplayMode(a.display_mode || "banner"); setPopupHeadline(a.popup_headline || ""); setPopupValue(a.popup_value || ""); setPopupCtaText(a.popup_cta_text || "รับข้อเสนอนี้!"); setPopupDismissText(a.popup_dismiss_text || "ไม่สนใจ"); setPopupCountdown(a.popup_countdown_minutes || 0); setPopupSlotsTotal(a.popup_slots_total || 0); setPopupSlotsClaimed(a.popup_slots_claimed || 0); setEditingId(a.id); setShowForm(true);
   }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
 
-    const body = { title, message, type, bg_color: bgColor, href: href || null, is_active: isActive, ends_at: endsAt || null };
+    const body = {
+      title, message, type, bg_color: bgColor, href: href || null, is_active: isActive, ends_at: endsAt || null,
+      display_mode: displayMode,
+      popup_headline: popupHeadline || null,
+      popup_value: popupValue || null,
+      popup_cta_text: popupCtaText,
+      popup_dismiss_text: popupDismissText,
+      popup_countdown_minutes: popupCountdown,
+      popup_slots_total: popupSlotsTotal,
+      popup_slots_claimed: popupSlotsClaimed,
+    };
 
     const res = editingId
       ? await fetch("/api/admin/announcements", { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: editingId, ...body }) })
@@ -134,6 +160,60 @@ export default function AnnouncementsManager({ announcements }: { announcements:
               <input type="text" value={href} onChange={(e) => setHref(e.target.value)} placeholder="เช่น /courses หรือ /credits" className={inputClass} />
             </div>
 
+            {/* Display mode */}
+            <div>
+              <label className="block text-xs font-medium text-white mb-1.5">รูปแบบ</label>
+              <div className="grid grid-cols-2 gap-2">
+                <button type="button" onClick={() => setDisplayMode("banner")} className={`p-3 rounded-xl text-xs font-medium text-center border transition ${displayMode === "banner" ? "border-emerald-500/40 bg-emerald-500/10 text-emerald-400" : "border-white/[0.07] text-[var(--text-secondary)] hover:bg-white/[0.04]"}`}>
+                  📢 แบนเนอร์ด้านบน
+                </button>
+                <button type="button" onClick={() => setDisplayMode("popup")} className={`p-3 rounded-xl text-xs font-medium text-center border transition ${displayMode === "popup" ? "border-emerald-500/40 bg-emerald-500/10 text-emerald-400" : "border-white/[0.07] text-[var(--text-secondary)] hover:bg-white/[0.04]"}`}>
+                  🎯 Popup (Exit Intent)
+                </button>
+              </div>
+            </div>
+
+            {/* Popup fields */}
+            {displayMode === "popup" && (
+              <div className="space-y-3 rounded-xl border border-white/[0.07] p-4" style={{ background: "var(--bg-primary)" }}>
+                <p className="text-xs font-semibold text-white">ตั้งค่า Popup</p>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-[10px] text-[var(--text-muted)] mb-1">หัวข้อ Popup</label>
+                    <input type="text" value={popupHeadline} onChange={(e) => setPopupHeadline(e.target.value)} placeholder="เช่น อย่าเพิ่งไป!" className={inputClass} />
+                  </div>
+                  <div>
+                    <label className="block text-[10px] text-[var(--text-muted)] mb-1">ตัวเลขเด่น</label>
+                    <input type="text" value={popupValue} onChange={(e) => setPopupValue(e.target.value)} placeholder="เช่น 500K, 50%, ฟรี" className={inputClass} />
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-[10px] text-[var(--text-muted)] mb-1">ข้อความปุ่ม CTA</label>
+                    <input type="text" value={popupCtaText} onChange={(e) => setPopupCtaText(e.target.value)} className={inputClass} />
+                  </div>
+                  <div>
+                    <label className="block text-[10px] text-[var(--text-muted)] mb-1">ข้อความปิด</label>
+                    <input type="text" value={popupDismissText} onChange={(e) => setPopupDismissText(e.target.value)} className={inputClass} />
+                  </div>
+                </div>
+                <div className="grid grid-cols-3 gap-3">
+                  <div>
+                    <label className="block text-[10px] text-[var(--text-muted)] mb-1">Countdown (นาที)</label>
+                    <input type="number" min="0" value={popupCountdown} onChange={(e) => setPopupCountdown(Number(e.target.value))} placeholder="0 = ไม่มี" className={inputClass} />
+                  </div>
+                  <div>
+                    <label className="block text-[10px] text-[var(--text-muted)] mb-1">สิทธิ์ทั้งหมด</label>
+                    <input type="number" min="0" value={popupSlotsTotal} onChange={(e) => setPopupSlotsTotal(Number(e.target.value))} placeholder="0 = ไม่แสดง" className={inputClass} />
+                  </div>
+                  <div>
+                    <label className="block text-[10px] text-[var(--text-muted)] mb-1">ใช้ไปแล้ว</label>
+                    <input type="number" min="0" value={popupSlotsClaimed} onChange={(e) => setPopupSlotsClaimed(Number(e.target.value))} className={inputClass} />
+                  </div>
+                </div>
+              </div>
+            )}
+
             <div>
               <label className="block text-xs font-medium text-white mb-1.5">หมดอายุ (ถ้ามี)</label>
               <input type="datetime-local" value={endsAt} onChange={(e) => setEndsAt(e.target.value)} className={inputClass} />
@@ -145,9 +225,24 @@ export default function AnnouncementsManager({ announcements }: { announcements:
             </label>
 
             {/* Preview */}
-            <div className={`rounded-xl p-3 text-center text-sm font-medium text-black ${COLORS.find((c) => c.value === bgColor)?.class || "bg-emerald-500"}`}>
-              {title || "ตัวอย่างประกาศ"} — {message || "ข้อความประกาศ"} {href && <span className="underline ml-1">คลิก →</span>}
-            </div>
+            {displayMode === "banner" ? (
+              <div className={`rounded-xl p-3 text-center text-sm font-medium text-black ${COLORS.find((c) => c.value === bgColor)?.class || "bg-emerald-500"}`}>
+                {title || "ตัวอย่างประกาศ"} — {message || "ข้อความประกาศ"} {href && <span className="underline ml-1">คลิก →</span>}
+              </div>
+            ) : (
+              <div className="rounded-xl overflow-hidden border border-white/[0.1]">
+                <div className={`bg-gradient-to-br ${bgColor === "red" ? "from-red-600 to-rose-500" : bgColor === "purple" ? "from-purple-600 to-pink-500" : bgColor === "amber" ? "from-amber-500 to-orange-500" : bgColor === "blue" ? "from-blue-600 to-cyan-500" : "from-emerald-600 to-teal-500"} p-4 text-center`}>
+                  <p className="text-white/80 text-[10px] uppercase">{popupHeadline || "หัวข้อ"}</p>
+                  <p className="text-2xl font-black text-white">{popupValue || "?"}</p>
+                  <p className="text-white/70 text-[10px]">{message || "ข้อความ"}</p>
+                </div>
+                <div className="bg-white p-3 text-center">
+                  <div className="text-[10px] text-gray-500 mb-2">{popupCountdown > 0 ? `⏰ Countdown ${popupCountdown} นาที` : ""} {popupSlotsTotal > 0 ? `· เหลือ ${popupSlotsTotal - popupSlotsClaimed} สิทธิ์` : ""}</div>
+                  <div className="bg-red-500 text-white text-xs font-bold py-2 rounded-lg">{popupCtaText}</div>
+                  <p className="text-[9px] text-gray-400 mt-1">{popupDismissText}</p>
+                </div>
+              </div>
+            )}
 
             <div className="flex justify-end gap-3 pt-2">
               <button type="button" onClick={resetForm} className="px-5 py-2.5 rounded-xl text-sm font-medium border border-white/[0.07] hover:bg-white/5 transition" style={{ color: "var(--text-secondary)" }}>ยกเลิก</button>
@@ -173,7 +268,7 @@ export default function AnnouncementsManager({ announcements }: { announcements:
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
                     <p className="text-sm font-medium text-white">{a.title}</p>
-                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-white/[0.05] text-[var(--text-muted)]">{TYPES.find((t) => t.value === a.type)?.label}</span>
+                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-white/[0.05] text-[var(--text-muted)]">{a.display_mode === "popup" ? "🎯 Popup" : "📢 แบนเนอร์"}</span>
                     {a.is_active ? (
                       <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">เปิด</span>
                     ) : (

@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 import { ToastProvider } from "@/components/Toast";
 import { ConfirmProvider } from "@/components/ConfirmModal";
 import GlobalAnnouncementBar from "@/components/AnnouncementBar";
+import ExitIntentPopup from "@/components/ExitIntentPopup";
 
 const sora = Sora({
   variable: "--font-sora",
@@ -60,6 +61,7 @@ export default function RootLayout({
           <ConfirmProvider>
             <GlobalAnnouncementBar />
             {children}
+            <ExitIntentPopup />
           </ConfirmProvider>
         </ToastProvider>
       </body>
