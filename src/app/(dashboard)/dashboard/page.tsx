@@ -22,7 +22,7 @@ export default async function DashboardPage() {
     supabase.from("enrollments").select("*, course:courses(id, title, thumbnail_url, modules(id, lessons(id)))").eq("user_id", user!.id),
     supabase.from("user_progress").select("lesson_id, is_completed").eq("user_id", user!.id),
     supabase.from("certificates").select("*", { count: "exact", head: true }).eq("user_id", user!.id),
-    supabase.from("generated_documents").select("*", { count: "exact", head: true }).eq("user_id", user!.id).then((r) => ({ count: r.count ?? 0 })),
+    supabase.from("user_documents").select("*", { count: "exact", head: true }).eq("user_id", user!.id),
     getBalance(user!.id),
   ]);
 
